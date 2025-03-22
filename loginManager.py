@@ -6,9 +6,9 @@ import maliang.theme
 import maliang.toolbox
 import datetime
 
-WIDTH = 2880
-HEIGHT = 1800
-SCALE = 2
+WIDTH = 1920
+HEIGHT = 1200
+SCALE = 1.25
 
 def getRatio(size):
     gcd = math.gcd(size[0], size[1]) 
