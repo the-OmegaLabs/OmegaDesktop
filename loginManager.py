@@ -6,7 +6,7 @@ import maliang.theme
 import maliang.toolbox
 import datetime
 
-SCALE = 1
+SCALE = 2
 
 def getRatio(size):
     gcd = math.gcd(size[0], size[1]) 
@@ -89,7 +89,7 @@ username    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(40
 
 passwdImg  = backgroundImage.crop((WIDTH // 2 - scaled(125), HEIGHT // 2 + scaled(103.03), WIDTH // 2 + scaled(125), HEIGHT // 2 + scaled(103.03) + scaled(35)))
 passwdMask = mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 75)))
-passwdMask = makeImageRadius(passwdMask, radius=5, alpha=1)
+passwdMask = makeImageRadius(passwdMask, radius=scaled(5), alpha=1)
 
 passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
 passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
