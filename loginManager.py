@@ -6,8 +6,6 @@ import maliang.theme
 import maliang.toolbox
 import datetime
 
-WIDTH = 1920
-HEIGHT = 1200
 SCALE = 1
 
 def getRatio(size):
@@ -28,7 +26,7 @@ def makeImageRadius(img, radius=30, alpha=0.5):
     return img
 
 
-def makeImageBlur(img, radius=5):
+def makeImageBlur(img, radius=10):
     return img.filter(ImageFilter.GaussianBlur(radius=radius))
 
 
@@ -49,7 +47,9 @@ maliang.toolbox.load_font('font.otf', private=True)
 maliang.toolbox.load_font('light.otf', private=True)
 maliang.toolbox.load_font('bold.otf', private=True)
 
-root = maliang.Tk(size=(WIDTH, HEIGHT), title='OmegaOS Desktop | Compositor Interface')
+root = maliang.Tk()
+WIDTH = root.winfo_screenwidth()
+HEIGHT = root.winfo_screenheight()
 root.fullscreen(1)
 iconImage = Image.open('main.png')
 root.maxsize(WIDTH, HEIGHT)
@@ -69,7 +69,7 @@ background = maliang.Image(cv, position=(0, 0), image=maliang.PhotoImage(backgro
 
 
 finderMask = makeImageMask(size=(WIDTH, finderHEIGHT))
-finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderHEIGHT)), finderMask), 10)
+finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderHEIGHT)), finderMask))
 finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 
 
@@ -88,7 +88,7 @@ account     = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(4
 username    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=getpass.getuser(), family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
 
 passwdImg  = backgroundImage.crop((WIDTH // 2 - scaled(125), HEIGHT // 2 + scaled(103.03), WIDTH // 2 + scaled(125), HEIGHT // 2 + scaled(103.03) + scaled(35)))
-passwdMask = mergeImage(makeImageBlur(passwdImg, 15), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 75)))
+passwdMask = mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 75)))
 passwdMask = makeImageRadius(passwdMask, radius=5, alpha=1)
 
 passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
