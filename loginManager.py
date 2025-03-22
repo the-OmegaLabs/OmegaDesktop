@@ -1,14 +1,14 @@
+import getpass
 import maliang
 import math
-from PIL import Image, ImageFilter
-from PIL import ImageDraw2 as ImageDraw
+from PIL import Image, ImageFilter, ImageDraw
 import maliang.theme
 import maliang.toolbox
 import datetime
 
 WIDTH = 1920
 HEIGHT = 1200
-SCALE = 1.25
+SCALE = 1
 
 def getRatio(size):
     gcd = math.gcd(size[0], size[1]) 
@@ -39,16 +39,18 @@ def makeImageMask(size, color=(0, 0, 0, 128), ):
 def mergeImage(a: Image, b: Image):
     try:
         return Image.alpha_composite(a, b)
-    except ValueError:
-        print(f'Can\'t merge image {a} and {b}.')
+    except ValueError as f:
+        print(f'Can\'t merge image {a} and {b}: {f}.')
 
 def scaled(number):
     return int(number * SCALE)
 
 maliang.toolbox.load_font('font.otf', private=True)
 maliang.toolbox.load_font('light.otf', private=True)
+maliang.toolbox.load_font('bold.otf', private=True)
 
 root = maliang.Tk(size=(WIDTH, HEIGHT), title='OmegaOS Desktop | Compositor Interface')
+root.fullscreen(1)
 iconImage = Image.open('main.png')
 root.maxsize(WIDTH, HEIGHT)
 root.minsize(WIDTH, HEIGHT)
@@ -71,10 +73,26 @@ finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderH
 finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 
 
-Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 2)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
-Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='账户管理器', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
+Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
+Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='登录管理器', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
 
-nowTime = datetime.datetime.now()
-Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=f'{nowTime.hour}:{nowTime.day}', family='源流黑体 CJK', fontsize=scaled(15))
+now = datetime.datetime.now()
+Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=now.strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15))
+
+# loginContainer = maliang.Label(cv, position=(WIDTH // 2 - scaled(200), HEIGHT - scaled(500)), size=(scaled(400), scaled(400)))
+loginContainer = maliang.Label(cv, position=(WIDTH // 2 - scaled(200), HEIGHT // 2 - scaled(200)), size=(scaled(400), scaled(400)))
+loginContainer.style.set(fg=('', ''), bg=('', ''), ol=('', ''))
+avatarImage = Image.open('user.jpg')
+avatarImage = makeImageRadius(avatarImage, radius=avatarImage.size[0], alpha=0.9).resize((scaled(150), scaled(150)), 1)
+account     = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400) // 2.75), image=maliang.PhotoImage(avatarImage), anchor='center')
+username    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=getpass.getuser(), family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
+
+passwdImg  = backgroundImage.crop((WIDTH // 2 - scaled(125), HEIGHT // 2 + scaled(103.03), WIDTH // 2 + scaled(125), HEIGHT // 2 + scaled(103.03) + scaled(35)))
+passwdMask = mergeImage(makeImageBlur(passwdImg, 15), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 75)))
+passwdMask = makeImageRadius(passwdMask, radius=5, alpha=1)
+
+passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
+passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
+passwdwdg.style.set(bg=('', '', ''), ol=('', '', ''))
 
 root.mainloop()
