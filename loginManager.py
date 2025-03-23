@@ -11,6 +11,12 @@ import datetime
 
 SCALE = 1.5
 FOCUS = 0
+LOWGPU = False
+
+if LOWGPU:
+    animationDuration = 0
+else:
+    animationDuration = 700
 
 def getRatio(size):
     gcd = math.gcd(size[0], size[1]) 
@@ -77,17 +83,24 @@ background = maliang.Image(cv, position=(0, 0), image=maliang.PhotoImage(backgro
 backList = []
 
 def generateBackground():
-    for i in range(0, 200, 40):
+    for i in range(0, 200, 20):
         backList.append(maliang.PhotoImage(makeImageBlur(backgroundImage, i / 10)))
 
 threading.Thread(target=generateBackground, daemon=True).start()
 
 def backgroundBlur():
-    for i in range(0, 5, 1):
-        background.set(backList[i])
+    if not LOWGPU:
+        for i in range(0, 10, 1):
+            background.set(backList[i])
+
+    background.set(backList[-1])
+
 def backgroundNoBlur():
-    for i in range(4, -1, -1):
-        background.set(backList[i])
+    if not LOWGPU:
+        for i in range(9, -1, -1):
+            background.set(backList[i])
+
+    background.set(backList[0])
 
 finderMask = makeImageMask(size=(WIDTH, finderHEIGHT))
 finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderHEIGHT)), finderMask))
@@ -113,7 +126,7 @@ def loginFocus():
         passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
         passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
         passwdwdg.style.set(bg=('', '', ''), ol=('', '', ''))
-        maliang.animation.MoveWidget(loginContainer, end=lambda: setFocus(1), offset=(0, 0 - HEIGHT // 3), duration=700, controller=maliang.animation.ease_out, fps=1000).start()
+        maliang.animation.MoveWidget(loginContainer, end=lambda: setFocus(1), offset=(0, 0 - HEIGHT // 3), duration=animationDuration, controller=maliang.animation.ease_out, fps=1000).start()
         
     elif FOCUS == 1:
         FOCUS = 2
@@ -121,7 +134,7 @@ def loginFocus():
         threading.Thread(target=backgroundNoBlur, daemon=True).start()
         passwdwdg.destroy()
         passwdbox.destroy()
-        maliang.animation.MoveWidget(loginContainer, end=lambda: (setFocus(0)), offset=(0, HEIGHT // 3), duration=700, controller=maliang.animation.ease_out, fps=1000).start()
+        maliang.animation.MoveWidget(loginContainer, end=lambda: (setFocus(0)), offset=(0, HEIGHT // 3), duration=animationDuration, controller=maliang.animation.ease_out, fps=1000).start()
     elif FOCUS == 2:
         pass
 
@@ -140,7 +153,7 @@ passwdMask = makeImageRadius(passwdMask, radius=scaled(5), alpha=1)
 
 maliang.animation.MoveWidget(loginContainer, offset=(0, HEIGHT // 3), duration=0, controller=maliang.animation.smooth, fps=1000).start()
 maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, controller=maliang.animation.smooth, fps=1000).start()
-maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=700, controller=maliang.animation.ease_out, fps=1000).start(delay=200)
+maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=1000).start(delay=200)
 
 
 root.mainloop()
