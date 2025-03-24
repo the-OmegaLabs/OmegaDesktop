@@ -122,7 +122,7 @@ def loginFocus():
         backgroundBlur()
         passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
         passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
-        loginButton = maliang.IconButton(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(30), scaled(30)), image=maliang.PhotoImage(loginIcon.resize((scaled(25), scaled(25)), 1)))
+        loginButton = maliang.IconButton(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(30), scaled(30)), image=maliang.PhotoImage(loginIcon.resize((scaled(25), scaled(25)), 1)), command=lambda: login(passwdwdg.get()))
         passwdwdg.bind('<Return>', lambda _: login(passwdwdg.get()))
         passwdwdg.style.set(bg=('', '', ''), ol=('', '', ''))
         loginButton.style.set(bg=('', '', ''), ol=('', '', ''))
