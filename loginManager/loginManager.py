@@ -114,8 +114,11 @@ def setFocus(stat):
 
 def login(passwd):
     passwdwdg.disable(True)
+    passwdwdg.master.focus('')
     loginButton.destroy()
+
     spinner = maliang.Spinner(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(20), scaled(20)), widths=(3, 3), mode='indeterminate')
+
 
     def shake_animation(index):
         if index < len(shakes):
@@ -145,6 +148,7 @@ def loginFocus():
         passwdwdg.bind('<Return>', lambda _: login(passwdwdg.get()))
         passwdwdg.style.set(bg=('', '', ''), ol=('', '', ''))
         loginButton.style.set(bg=('', '', ''), ol=('', '', ''))
+        
 
         maliang.animation.MoveWidget(loginContainer, end=lambda: setFocus(1), offset=(0, 0 - HEIGHT // 3), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start()
         
