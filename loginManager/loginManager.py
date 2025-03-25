@@ -1,4 +1,5 @@
 import getpass
+import time
 import maliang
 import math
 from PIL import Image, ImageFilter, ImageDraw
@@ -44,7 +45,7 @@ def makeImageBlur(img, radius=10):
     return img.filter(ImageFilter.GaussianBlur(radius=radius))
 
 
-def makeImageMask(size, color=(0, 0, 0, 128), ):
+def makeImageMask(size, color=(0, 0, 0, 128)):
     return Image.new("RGBA", size=size, color=color)
 
 
@@ -112,10 +113,28 @@ def setFocus(stat):
     FOCUS = stat
 
 def login(passwd):
-    print(passwd)
+    passwdwdg.disable(True)
+    loginButton.destroy()
+    spinner = maliang.Spinner(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(20), scaled(20)), widths=(3, 3), mode='indeterminate')
+
+    def shake_animation(index):
+        if index < len(shakes):
+            i = shakes[index]
+            animation = maliang.animation.MoveWidget(passwdbox, offset=(i, 0), duration=animationDuration // 4, controller=maliang.animation.smooth, fps=animationFPS)
+            animation.start()
+            # Call next shake after a short delay
+            root.after(200, shake_animation, index + 1)
+        else:
+            loginFocus()
+
+    if passwd != 'qweqwe':
+        spinner.destroy()
+        shakes = [-30, 60, -60, 60, -30]
+        shake_animation(0)
+
 
 def loginFocus():
-    global FOCUS, passwdbox, passwdwdg
+    global FOCUS, passwdbox, passwdwdg, loginButton, passwdImg
     if FOCUS == 0:
         FOCUS = 2
 
