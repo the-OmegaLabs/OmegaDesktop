@@ -123,16 +123,16 @@ def login(passwd):
     def shake_animation(index):
         if index < len(shakes):
             i = shakes[index]
-            animation = maliang.animation.MoveWidget(passwdbox, offset=(i, 0), duration=animationDuration // 4, controller=maliang.animation.smooth, fps=animationFPS)
+            animation = maliang.animation.MoveWidget(passwdbox, offset=(i, 0), duration=animationDuration // 4, controller=maliang.animation.ease_out, fps=animationFPS)
             animation.start()
             # Call next shake after a short delay
-            root.after(200, shake_animation, index + 1)
+            root.after(animationDuration // 8, shake_animation, index + 1)
         else:
             loginFocus()
 
     if passwd != 'qweqwe':
         spinner.destroy()
-        shakes = [-30, 60, -60, 60, -30]
+        shakes = [-15, 30, -30, 30, -15]
         shake_animation(0)
 
 
