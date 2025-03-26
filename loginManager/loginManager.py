@@ -1,5 +1,4 @@
 import getpass
-import time
 import maliang
 import math
 from PIL import Image, ImageFilter, ImageDraw
@@ -7,16 +6,22 @@ import maliang.animation
 import maliang.theme
 import maliang.toolbox
 import datetime
+import pam
+import platform
 
-SCALE = 1
+
+if platform.system() != 'Linux':
+    auth = True
+else:
+    auth = pam.pam()
+
+SCALE = 1.25
 FOCUS = 0
 LOWGPU = 0
-animationFPS = 500
+animationFPS = 1000
 backgroundPath = 'bg/default.png'
 avatarPath = 'img/user.jpg'
 iconPath = 'img/main.png'
-
-maliang.Env.system = 'Windows10'
 
 if LOWGPU:
     animationDuration = 0
@@ -58,22 +63,23 @@ def mergeImage(a: Image, b: Image):
 def scaled(number):
     return int(number * SCALE)
 
-maliang.toolbox.load_font('font/font.otf', private=True)
 maliang.toolbox.load_font('font/light.otf', private=True)
 maliang.toolbox.load_font('font/bold.otf', private=True)
 
-root = maliang.Tk(position=(150, 150))
+root = maliang.Tk(position=(-5, 0))
 root.title('[DEVELOPMENT] Omega Desktop Compositor')
-# WIDTH = root.winfo_screenwidth()
-# HEIGHT = root.winfo_screenheight()
-# root.fullscreen(1)
-WIDTH  = 1366
-HEIGHT = 768
+WIDTH = root.winfo_screenwidth()
+HEIGHT = root.winfo_screenheight()
+root.fullscreen(1)
+# WIDTH  = 1920
+# HEIGHT = 1080
 iconImage = Image.open(iconPath)
 root.maxsize(WIDTH, HEIGHT)
 root.minsize(WIDTH, HEIGHT)
 root.icon(maliang.PhotoImage(iconImage))
-maliang.theme.manager.customize_window(root, disable_maximize_button=True)
+
+maliang.Env.system = 'Windows10'
+maliang.theme.manager.set_color_mode('dark')
 
 cv = maliang.Canvas(root, auto_zoom=False)
 cv.place(width=WIDTH, height=HEIGHT)
@@ -102,12 +108,15 @@ finderMask = makeImageMask(size=(WIDTH, finderHEIGHT))
 finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderHEIGHT)), finderMask))
 finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 
+def menubarHandler(name):
+    print(name)
 
 Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
 Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='显示管理器', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-MenuBar = maliang.SegmentedButton(finderBar, position=(scaled(70) + scaled(15 * 5), scaled(45 // 2 + 1)), text=['关机', '重启', '重启并尝试进入 EFI 固件', '关于'], family='源流黑体 CJK', fontsize=scaled(15), anchor='w')
+MenuBar = maliang.SegmentedButton(finderBar, position=(scaled(70) + scaled(15 * 5), scaled(45 // 2 + 1)), text=['关机', '重启', '重启并尝试进入 EFI 固件', '关于'], family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
 MenuBar.style.set(bg=('', ''), ol=('', ''))
 MenuBar.style.set(bg=('', ''), ol=('', ''))
+
 for i in MenuBar.children:
     i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
 
@@ -125,7 +134,6 @@ def login(passwd):
 
     spinner = maliang.Spinner(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(20), scaled(20)), widths=(3, 3), mode='indeterminate')
 
-
     def shake_animation(index):
         if index < len(shakes):
             i = shakes[index]
@@ -136,7 +144,8 @@ def login(passwd):
         else:
             loginFocus()
 
-    if passwd != 'qweqwe':
+
+    if not passwd or not auth.authenticate(getpass.getuser(), passwd):
         spinner.destroy()
         passwdbox.set(maliang.PhotoImage(passwdEMask))
         shakes = [-15, 30, -30, 30, -15]
