@@ -63,6 +63,7 @@ maliang.toolbox.load_font('font/light.otf', private=True)
 maliang.toolbox.load_font('font/bold.otf', private=True)
 
 root = maliang.Tk(position=(150, 150))
+root.title('[DEVELOPMENT] Omega Desktop Compositor')
 # WIDTH = root.winfo_screenwidth()
 # HEIGHT = root.winfo_screenheight()
 # root.fullscreen(1)
@@ -103,10 +104,15 @@ finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), imag
 
 
 Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
-Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='登录管理器', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
+Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='显示管理器', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
+MenuBar = maliang.SegmentedButton(finderBar, position=(scaled(70) + scaled(15 * 5), scaled(45 // 2 + 1)), text=['关机', '重启', '重启并尝试进入 EFI 固件', '关于'], family='源流黑体 CJK', fontsize=scaled(15), anchor='w')
+MenuBar.style.set(bg=('', ''), ol=('', ''))
+MenuBar.style.set(bg=('', ''), ol=('', ''))
+for i in MenuBar.children:
+    i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
 
 now = datetime.datetime.now()
-Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=now.strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15))
+Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=now.strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
 
 def setFocus(stat):
     global FOCUS
