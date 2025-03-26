@@ -11,7 +11,7 @@ import datetime
 SCALE = 1
 FOCUS = 0
 LOWGPU = 0
-animationFPS = 100
+animationFPS = 500
 backgroundPath = 'bg/default.png'
 avatarPath = 'img/user.jpg'
 iconPath = 'img/main.png'
@@ -66,7 +66,7 @@ root = maliang.Tk(position=(150, 150))
 # WIDTH = root.winfo_screenwidth()
 # HEIGHT = root.winfo_screenheight()
 # root.fullscreen(1)
-WIDTH =  1366
+WIDTH  = 1366
 HEIGHT = 768
 iconImage = Image.open(iconPath)
 root.maxsize(WIDTH, HEIGHT)
@@ -132,6 +132,7 @@ def login(passwd):
 
     if passwd != 'qweqwe':
         spinner.destroy()
+        passwdbox.set(maliang.PhotoImage(passwdEMask))
         shakes = [-15, 30, -30, 30, -15]
         shake_animation(0)
 
@@ -172,8 +173,8 @@ account.style.set(bg=('', '', ''), ol=('', '', ''))
 username    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=getpass.getuser(), family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
 passwdImg   = backgroundImage.crop((WIDTH // 2 - scaled(125), HEIGHT // 2 + scaled(103.03), WIDTH // 2 + scaled(125), HEIGHT // 2 + scaled(103.03) + scaled(35)))
 loginIcon   = Image.open('img/login.png')
-passwdMask  = mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 96)))
-passwdMask  = makeImageRadius(passwdMask, radius=scaled(5), alpha=1)
+passwdMask  = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 96))), radius=scaled(5), alpha=1)
+passwdEMask = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(96, 0, 0, 96))), radius=scaled(5), alpha=1)
 
 
 maliang.animation.MoveWidget(loginContainer, offset=(0, HEIGHT // 3), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
