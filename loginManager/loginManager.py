@@ -12,7 +12,7 @@ import pam
 import platform
 
 
-SCALE = 1.5
+SCALE = 1.25
 FOCUS = 0
 LOWGPU = 0
 animationFPS = 1000
@@ -55,7 +55,7 @@ def showAbout():
         widget.bind('<B1-Motion>', on_drag)
         widget.bind('<ButtonRelease-1>', on_release)
 
-    aboutWindow = maliang.Label(cv, size=(scaled(300), scaled(400)), position=(scaled(200), scaled(200)))
+    aboutWindow = maliang.Label(cv, size=(scaled(300), scaled(400)), position=(WIDTH // 2 - scaled(150), HEIGHT // 2 - scaled(200)))
 
     maliang.Image(aboutWindow, position=(scaled(150), scaled(30)), anchor='n', image=maliang.PhotoImage(Image.open(DMiconPath).resize((scaled(200), scaled(200)), 1)))
 
@@ -120,11 +120,11 @@ maliang.toolbox.load_font('font/bold.otf', private=True)
 
 root = maliang.Tk(position=(-5, 0))
 root.title('[DEVELOPMENT] Omega Desktop Compositor')
-WIDTH = root.winfo_screenwidth()
-HEIGHT = root.winfo_screenheight()
-root.fullscreen(1)
-# WIDTH  = 1920
-# HEIGHT = 1080
+# WIDTH = root.winfo_screenwidth()
+# HEIGHT = root.winfo_screenheight()
+# root.fullscreen(1)
+WIDTH  = 1600
+HEIGHT = 900
 iconImage = Image.open(iconPath)
 root.maxsize(WIDTH, HEIGHT)
 root.minsize(WIDTH, HEIGHT)
@@ -185,9 +185,6 @@ MenuBar.style.set(bg=('', ''), ol=('', ''))
 for i in MenuBar.children:
     i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
 
-now = datetime.datetime.now()
-Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=now.strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-
 def setFocus(stat):
     global FOCUS
     FOCUS = stat
@@ -235,11 +232,38 @@ def login(passwd):
     
     threading.Thread(target=authenticate, daemon=True).start()
 
+def generateTimeText(now):
+    global timeText, timebg
+    nowTime = now.strftime('%H:%M')
+    n1, n2, sp, n3, n4 = nowTime[0], nowTime[1], nowTime[2], nowTime[3], nowTime[4]
+
+    timeBlur = makeImageBlur(backgroundImage.crop((WIDTH // 2 - scaled(35) * 2.7, HEIGHT // 4 - scaled(30), WIDTH // 2 + scaled(35) * 2.7, HEIGHT // 4 + scaled(40))), 10)
+    timeMask = makeImageMask(size=(timeBlur.width, timeBlur.height), color=(0, 0, 0, 64))
+    timeBack = makeImageRadius(mergeImage(timeBlur, timeMask), alpha=0.5, radius=10)
+    timebg   = maliang.Image(cv, position=(WIDTH // 2 + scaled(2), HEIGHT // 4 + scaled(5)), image=maliang.PhotoImage(timeBack), anchor='center')
+
+    timeText = []
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85, HEIGHT // 4), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8, HEIGHT // 4), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8, HEIGHT // 4), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9, HEIGHT // 4), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2, HEIGHT // 4), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
+
+    for i, widget in enumerate(timeText):
+        if i != 4 and int(widget.get()) == 1:
+            widget.style.set(fg=('#00B8FF'))
+            break
+
 
 def loginFocus():
     global FOCUS, passwdbox, passwdwdg, loginButton, passwdImg
     if FOCUS == 0:
         FOCUS = 2
+
+        for i in timeText:
+            i.destroy()
+
+        timebg.destroy()
 
         backgroundBlur()
         passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
@@ -259,9 +283,13 @@ def loginFocus():
         passwdwdg.destroy()
         passwdbox.destroy()
         maliang.animation.MoveWidget(loginContainer, end=lambda: (setFocus(0)), offset=(0, HEIGHT // 3), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start()
+
+  
+        generateTimeText(datetime.datetime.now())
     elif FOCUS == 2:
         pass
 
+Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
 # loginContainer = maliang.Label(cv, position=(WIDTH // 2 - scaled(200), HEIGHT - scaled(500)), size=(scaled(400), scaled(400)))
 loginContainer = maliang.Label(cv, position=(WIDTH // 2 - scaled(200), HEIGHT // 2 - scaled(200)), size=(scaled(400), scaled(400)))
 loginContainer.style.set(fg=('', ''), bg=('', ''), ol=('', ''))
@@ -279,6 +307,8 @@ passwdEMask = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask
 maliang.animation.MoveWidget(loginContainer, offset=(0, HEIGHT // 3), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
 maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
 maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=200)
+
+generateTimeText(datetime.datetime.now())
 
 
 root.mainloop()
