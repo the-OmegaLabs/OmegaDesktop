@@ -1,4 +1,6 @@
 import getpass
+import os
+import threading
 import maliang
 import math
 from PIL import Image, ImageFilter, ImageDraw
@@ -10,23 +12,73 @@ import pam
 import platform
 
 
-if platform.system() != 'Linux':
-    auth = True
-else:
-    auth = pam.pam()
-
-SCALE = 1.25
+SCALE = 1.5
 FOCUS = 0
 LOWGPU = 0
 animationFPS = 1000
 backgroundPath = 'bg/default.png'
 avatarPath = 'img/user.jpg'
 iconPath = 'img/main.png'
+DMiconPath = 'img/dm.png'
 
 if LOWGPU:
     animationDuration = 0
 else:
     animationDuration = 700
+
+    
+
+def showAbout():
+    def enable_drag(widget):
+        drag_data = {'x': None, 'y': None}
+
+        def on_press(event):
+            if widget.detect(event.x, event.y):
+                drag_data['x'] = event.x
+                drag_data['y'] = event.y
+
+        def on_drag(event):
+            if drag_data['x'] is not None and drag_data['y'] is not None:
+                dx = event.x - drag_data['x']
+                dy = event.y - drag_data['y']
+                widget.move(dx, dy)
+
+                drag_data['x'] = event.x
+                drag_data['y'] = event.y
+
+        def on_release(event):
+            drag_data['x'] = None
+            drag_data['y'] = None
+
+        # 绑定事件
+        widget.bind('<Button-1>', on_press)
+        widget.bind('<B1-Motion>', on_drag)
+        widget.bind('<ButtonRelease-1>', on_release)
+
+    aboutWindow = maliang.Label(cv, size=(scaled(300), scaled(400)), position=(scaled(200), scaled(200)))
+
+    maliang.Image(aboutWindow, position=(scaled(150), scaled(30)), anchor='n', image=maliang.PhotoImage(Image.open(DMiconPath).resize((scaled(200), scaled(200)), 1)))
+
+    maliang.Text(aboutWindow, text='Display Manager', 
+                    position=(scaled(151), scaled(230)), anchor='center', 
+                    family='源流黑体 CJK', fontsize=scaled(20), weight='bold')
+
+    maliang.Text(aboutWindow, text='1.0.0', 
+                    position=(scaled(151), scaled(255)), anchor='center', 
+                    family='源流黑体 CJK', fontsize=scaled(15)).style.set(fg='#999999')
+    
+    maliang.Text(aboutWindow, text='© 2025 Omega Labs | Omega Desktop Environment', 
+                    position=(scaled(151), scaled(327)), anchor='center', 
+                    family='源流黑体 CJK', fontsize=scaled(11)).style.set(fg='#DDDDDD')
+    
+    closeButton = maliang.Button(aboutWindow, text='Close', 
+                    position=(scaled(151), scaled(355)), size=(scaled(100), scaled(40)), 
+                    command=aboutWindow.destroy, anchor='center', family='源流黑体 CJK', fontsize=scaled(20))
+
+    closeButton.style.set(ol=('', '', ''), bg=('', '', ''))
+
+    enable_drag(aboutWindow)
+
 
 def getRatio(size):
     gcd = math.gcd(size[0], size[1]) 
@@ -109,13 +161,26 @@ finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderH
 finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 
 def menubarHandler(name):
-    print(name)
+    if name == 0:
+        os.system('systemctl poweroff')
+    
+    elif name == 1:
+        os.system('systemctl reboot')
+    
+    elif name == 2:
+        os.system('systemctl reboot --firmware-setup')
+
+    elif name == 3:
+        showAbout()
+
+    else:
+        print(f"Unknown command: {name}")
 
 Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
-Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='显示管理器', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-MenuBar = maliang.SegmentedButton(finderBar, position=(scaled(70) + scaled(15 * 5), scaled(45 // 2 + 1)), text=['关机', '重启', '重启并尝试进入 EFI 固件', '关于'], family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
+Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='Display Manager', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
+MenuBar = maliang.SegmentedButton(finderBar, text=['Shutdown', 'Reboot', 'Enter Firmware Settings', 'About'], position=(scaled(70) + scaled(5.75 * (5 + len(Title.get()))), scaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
 MenuBar.style.set(bg=('', ''), ol=('', ''))
-MenuBar.style.set(bg=('', ''), ol=('', ''))
+
 
 for i in MenuBar.children:
     i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
@@ -127,29 +192,48 @@ def setFocus(stat):
     global FOCUS
     FOCUS = stat
 
-def login(passwd):
+def login(passwd):    
+    loginButton.destroy()
+    
     passwdwdg.disable(True)
     passwdwdg.master.focus('')
-    loginButton.destroy()
-
     spinner = maliang.Spinner(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(20), scaled(20)), widths=(3, 3), mode='indeterminate')
+    
+    shakes = [-15, 30, -30, 30, -15]
 
-    def shake_animation(index):
+    def shakeAnimation(index):
         if index < len(shakes):
             i = shakes[index]
             animation = maliang.animation.MoveWidget(passwdbox, offset=(i, 0), duration=animationDuration // 4, controller=maliang.animation.ease_out, fps=animationFPS)
             animation.start()
-            # Call next shake after a short delay
-            root.after(animationDuration // 8, shake_animation, index + 1)
+            root.after(animationDuration // 8, shakeAnimation, index + 1)
         else:
             loginFocus()
 
+    def failed():
+        cv.after(0, lambda: spinner.destroy())  
+        cv.after(0, lambda: passwdbox.set(maliang.PhotoImage(passwdEMask)))
+        cv.after(0, lambda: shakeAnimation(0))
 
-    if not passwd or not auth.authenticate(getpass.getuser(), passwd):
-        spinner.destroy()
-        passwdbox.set(maliang.PhotoImage(passwdEMask))
-        shakes = [-15, 30, -30, 30, -15]
-        shake_animation(0)
+    def success():
+        root.after(0, lambda: root.destroy())
+
+    
+    def authenticate():
+        if platform.system() == 'Linux':
+            auth = pam.pam()
+            if auth.authenticate(getpass.getuser(), passwd):
+                success()
+            else:
+                failed()
+        else:
+            if not passwd:
+                failed()
+            else:
+                success()
+
+    
+    threading.Thread(target=authenticate, daemon=True).start()
 
 
 def loginFocus():
@@ -159,7 +243,7 @@ def loginFocus():
 
         backgroundBlur()
         passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
-        passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
+        passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='Password', show='*')
         loginButton = maliang.IconButton(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(30), scaled(30)), image=maliang.PhotoImage(loginIcon.resize((scaled(25), scaled(25)), 1)), command=lambda: login(passwdwdg.get()))
         passwdwdg.bind('<Return>', lambda _: login(passwdwdg.get()))
         passwdwdg.style.set(bg=('', '', ''), ol=('', '', ''))
