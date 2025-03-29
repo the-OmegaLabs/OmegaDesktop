@@ -17,7 +17,7 @@ FOCUS = 0
 LOWGPU = 0
 animationFPS = 1000
 backgroundPath = 'bg/default.png'
-avatarPath = 'img/user.png'
+avatarPath = 'img/user.jpg'
 iconPath = 'img/main.png'
 DMiconPath = 'img/dm.png'
 
@@ -63,7 +63,6 @@ def showAbout():
             drag_data['x'] = None
             drag_data['y'] = None
 
-        # 绑定事件
         widget.bind('<Button-1>', on_press)
         widget.bind('<B1-Motion>', on_drag)
         widget.bind('<ButtonRelease-1>', on_release)
@@ -133,11 +132,11 @@ maliang.toolbox.load_font('font/bold.otf', private=True)
 
 root = maliang.Tk(position=(-5, 0))
 root.title('[DEVELOPMENT] Omega Desktop Compositor')
-# WIDTH = root.winfo_screenwidth()
-# HEIGHT = root.winfo_screenheight()
-# root.fullscreen(1)
-WIDTH  = 1600
-HEIGHT = 900
+WIDTH = root.winfo_screenwidth()
+HEIGHT = root.winfo_screenheight()
+root.fullscreen(1)
+# WIDTH  = 1600
+# HEIGHT = 900
 iconImage = Image.open(iconPath)
 root.maxsize(WIDTH, HEIGHT)
 root.minsize(WIDTH, HEIGHT)
@@ -324,7 +323,7 @@ for i in MenuBar.children:
 
 maliang.animation.MoveWidget(loginContainer, offset=(0, HEIGHT // 3), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
 maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
-maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration)
+maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
 
 generateTimeText(datetime.datetime.now())
 
