@@ -17,7 +17,7 @@ FOCUS = 0
 LOWGPU = 0
 animationFPS = 1000
 backgroundPath = 'bg/default.png'
-avatarPath = 'img/user.jpg'
+avatarPath = 'img/user.png'
 iconPath = 'img/main.png'
 DMiconPath = 'img/dm.png'
 
@@ -26,7 +26,20 @@ if LOWGPU:
 else:
     animationDuration = 700
 
+def getDominantColor(image):
+    image = image.convert('RGB')
+    colors = image.getcolors(image.size[0] * image.size[1])
     
+    topColors = sorted(colors, key=lambda x: x[0], reverse=True)[:300]
+    
+    brightnessValues = []
+    for count, (r, g, b) in topColors:
+        brightness = 0.299 * r + 0.587 * g + 0.114 * b
+        brightnessValues.append((brightness, (r, g, b)))
+    
+    brightestColor = max(brightnessValues, key=lambda x: x[0])[1]
+    
+    return f"#{brightestColor[0]:02X}{brightestColor[1]:02X}{brightestColor[2]:02X}"    
 
 def showAbout():
     def enable_drag(widget):
@@ -158,7 +171,6 @@ def backgroundNoBlur():
 
 finderMask = makeImageMask(size=(WIDTH, finderHEIGHT))
 finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderHEIGHT)), finderMask))
-finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 
 def menubarHandler(name):
     if name == 0:
@@ -175,15 +187,6 @@ def menubarHandler(name):
 
     else:
         print(f"Unknown command: {name}")
-
-Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
-Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='Display Manager', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-MenuBar = maliang.SegmentedButton(finderBar, text=['Shutdown', 'Reboot', 'Enter Firmware Settings', 'About'], position=(scaled(70) + scaled(5.75 * (5 + len(Title.get()))), scaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
-MenuBar.style.set(bg=('', ''), ol=('', ''))
-
-
-for i in MenuBar.children:
-    i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
 
 def setFocus(stat):
     global FOCUS
@@ -232,7 +235,7 @@ def login(passwd):
     
     threading.Thread(target=authenticate, daemon=True).start()
 
-def generateTimeText(now):
+def generateTimeText(now: datetime.time):
     global timeText, timebg
     nowTime = now.strftime('%H:%M')
     n1, n2, sp, n3, n4 = nowTime[0], nowTime[1], nowTime[2], nowTime[3], nowTime[4]
@@ -245,15 +248,20 @@ def generateTimeText(now):
     timeText = []
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85, HEIGHT // 4), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8, HEIGHT // 4), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2, HEIGHT // 4), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8, HEIGHT // 4), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9, HEIGHT // 4), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2, HEIGHT // 4), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
+    
+    #timeText.append(maliang.Text(cv, ))
+    
+    for i, widget in enumerate(timeText):
+        widget.style.set(fg=('#CCCCCC'))
+        maliang.animation.MoveWidget(widget, offset=(0, 0 - scaled(25)), duration=0).start()
 
     for i, widget in enumerate(timeText):
-        if i != 4 and int(widget.get()) == 1:
-            widget.style.set(fg=('#00B8FF'))
+        if i != 2:
+            widget.style.set(fg=(getDominantColor(backgroundImage)))
             break
-
 
 def loginFocus():
     global FOCUS, passwdbox, passwdwdg, loginButton, passwdImg
@@ -262,10 +270,9 @@ def loginFocus():
 
         for i in timeText:
             i.destroy()
-
+        backgroundBlur()
         timebg.destroy()
 
-        backgroundBlur()
         passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
         passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='Password', show='*')
         loginButton = maliang.IconButton(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(30), scaled(30)), image=maliang.PhotoImage(loginIcon.resize((scaled(25), scaled(25)), 1)), command=lambda: login(passwdwdg.get()))
@@ -280,16 +287,19 @@ def loginFocus():
         FOCUS = 2
 
         backgroundNoBlur()
+
         passwdwdg.destroy()
         passwdbox.destroy()
         maliang.animation.MoveWidget(loginContainer, end=lambda: (setFocus(0)), offset=(0, HEIGHT // 3), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start()
 
-  
         generateTimeText(datetime.datetime.now())
+
+        for i, widget in enumerate(timeText):
+            maliang.animation.MoveWidget(widget, offset=(0, scaled(25)), duration=animationDuration // 2, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=i * 25)
+
     elif FOCUS == 2:
         pass
 
-Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
 # loginContainer = maliang.Label(cv, position=(WIDTH // 2 - scaled(200), HEIGHT - scaled(500)), size=(scaled(400), scaled(400)))
 loginContainer = maliang.Label(cv, position=(WIDTH // 2 - scaled(200), HEIGHT // 2 - scaled(200)), size=(scaled(400), scaled(400)))
 loginContainer.style.set(fg=('', ''), bg=('', ''), ol=('', ''))
@@ -303,12 +313,23 @@ loginIcon   = Image.open('img/login.png')
 passwdMask  = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 96))), radius=scaled(5), alpha=1)
 passwdEMask = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(96, 0, 0, 96))), radius=scaled(5), alpha=1)
 
+finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
+Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
+Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='Display Manager', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
+MenuBar = maliang.SegmentedButton(finderBar, text=['Shutdown', 'Reboot', 'Enter Firmware Settings', 'About'], position=(scaled(70) + scaled(5.75 * (5 + len(Title.get()))), scaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
+MenuBar.style.set(bg=('', ''), ol=('', ''))
+Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
+for i in MenuBar.children:
+    i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
 
 maliang.animation.MoveWidget(loginContainer, offset=(0, HEIGHT // 3), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
 maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
-maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=200)
+maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration)
 
 generateTimeText(datetime.datetime.now())
+
+for i, widget in enumerate(timeText):
+    maliang.animation.MoveWidget(widget, offset=(0, scaled(25)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=i * 25)
 
 
 root.mainloop()
