@@ -15,11 +15,11 @@ import platform
 SCALE = 1.25
 FOCUS = 0
 LOWGPU = 0
-animationFPS = 1000
+animationFPS   = 1000
 backgroundPath = 'bg/default.png'
-avatarPath = 'img/user.jpg'
-iconPath = 'img/main.png'
-DMiconPath = 'img/dm.png'
+avatarPath     = 'img/user.jpg'
+iconPath       = 'img/main.png'
+DMiconPath     = 'img/dm.png'
 
 if LOWGPU:
     animationDuration = 0
@@ -251,8 +251,8 @@ def generateTimeText(now: datetime.time):
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8, HEIGHT // 4), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9, HEIGHT // 4), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     
-    #timeText.append(maliang.Text(cv, ))
-    
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2, timebg.position[1] - scaled(75)), text=now.strftime('%A, %B, %d'), anchor='n', family='源流黑体 CJK', fontsize=scaled(25)))
+
     for i, widget in enumerate(timeText):
         widget.style.set(fg=('#CCCCCC'))
         maliang.animation.MoveWidget(widget, offset=(0, 0 - scaled(25)), duration=0).start()
