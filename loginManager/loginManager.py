@@ -132,11 +132,11 @@ maliang.toolbox.load_font('font/bold.otf', private=True)
 
 root = maliang.Tk(position=(-5, 0))
 root.title('[DEVELOPMENT] Omega Desktop Compositor')
-WIDTH = root.winfo_screenwidth()
-HEIGHT = root.winfo_screenheight()
-root.fullscreen(1)
-# WIDTH  = 1600
-# HEIGHT = 900
+# WIDTH = root.winfo_screenwidth()
+# HEIGHT = root.winfo_screenheight()
+# root.fullscreen(1)
+WIDTH  = 1600
+HEIGHT = 900
 iconImage = Image.open(iconPath)
 root.maxsize(WIDTH, HEIGHT)
 root.minsize(WIDTH, HEIGHT)
@@ -251,7 +251,8 @@ def generateTimeText(now: datetime.time):
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8, HEIGHT // 4), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9, HEIGHT // 4), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2, timebg.position[1] - scaled(75)), text=now.strftime('%A, %B, %d'), anchor='n', family='源流黑体 CJK', fontsize=scaled(25)))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(2), timebg.position[1] - scaled(73)), text=now.strftime('%A, %B, %d'), anchor='n', family='源流黑体 CJK', fontsize=scaled(25), weight='bold'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2, timebg.position[1] - scaled(75)), text=now.strftime('%A, %B, %d'), anchor='n', family='源流黑体 CJK', fontsize=scaled(25), weight='bold'))
 
     for i, widget in enumerate(timeText):
         widget.style.set(fg=('#CCCCCC'))
@@ -261,6 +262,8 @@ def generateTimeText(now: datetime.time):
         if i != 2:
             widget.style.set(fg=(getDominantColor(backgroundImage)))
             break
+    
+    timeText[5].style.set(fg=('#666666'))
 
 def loginFocus():
     global FOCUS, passwdbox, passwdwdg, loginButton, passwdImg
@@ -306,7 +309,9 @@ avatarImage = Image.open(avatarPath)
 avatarImage = makeImageRadius(avatarImage, radius=avatarImage.size[0], alpha=0.9).resize((scaled(150), scaled(150)), 1)
 account     = maliang.IconButton(loginContainer, size=(scaled(150), scaled(150)), position=(scaled(400) // 2, scaled(400) // 2.75), image=maliang.PhotoImage(avatarImage), anchor='center', command=lambda: loginFocus())
 account.style.set(bg=('', '', ''), ol=('', '', ''))
+usernameO   = maliang.Text(loginContainer, position=(scaled(400) // 2 + scaled(2), scaled(400 / 1.55) + scaled(2)), text=getpass.getuser(), family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
 username    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=getpass.getuser(), family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
+usernameO.style.set(fg=('#666666'))
 passwdImg   = backgroundImage.crop((WIDTH // 2 - scaled(125), HEIGHT // 2 + scaled(103.03), WIDTH // 2 + scaled(125), HEIGHT // 2 + scaled(103.03) + scaled(35)))
 loginIcon   = Image.open('img/login.png')
 passwdMask  = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 96))), radius=scaled(5), alpha=1)
