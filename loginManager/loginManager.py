@@ -10,7 +10,7 @@ import maliang.toolbox
 import datetime
 import pam
 import platform
-
+from lunardate import LunarDate
 
 SCALE = 1.25
 FOCUS = 0
@@ -20,6 +20,7 @@ backgroundPath = 'bg/default.png'
 avatarPath     = 'img/user.jpg'
 iconPath       = 'img/main.png'
 DMiconPath     = 'img/dm.png'
+loginUser      = 'Stevesuk'
 
 if LOWGPU:
     animationDuration = 0
@@ -71,7 +72,7 @@ def showAbout():
 
     maliang.Image(aboutWindow, position=(scaled(150), scaled(30)), anchor='n', image=maliang.PhotoImage(Image.open(DMiconPath).resize((scaled(200), scaled(200)), 1)))
 
-    maliang.Text(aboutWindow, text='Display Manager', 
+    maliang.Text(aboutWindow, text='显示管理器', 
                     position=(scaled(151), scaled(230)), anchor='center', 
                     family='源流黑体 CJK', fontsize=scaled(20), weight='bold')
 
@@ -79,7 +80,7 @@ def showAbout():
                     position=(scaled(151), scaled(255)), anchor='center', 
                     family='源流黑体 CJK', fontsize=scaled(15)).style.set(fg='#999999')
     
-    maliang.Text(aboutWindow, text='© 2025 Omega Labs | Omega Desktop Environment', 
+    maliang.Text(aboutWindow, text='© 2025 Omega Labs | Omega 桌面环境', 
                     position=(scaled(151), scaled(327)), anchor='center', 
                     family='源流黑体 CJK', fontsize=scaled(11)).style.set(fg='#DDDDDD')
     
@@ -221,7 +222,7 @@ def login(passwd):
     def authenticate():
         if platform.system() == 'Linux':
             auth = pam.pam()
-            if auth.authenticate(getpass.getuser(), passwd):
+            if auth.authenticate(loginUser, passwd):
                 success()
             else:
                 failed()
@@ -234,36 +235,53 @@ def login(passwd):
     
     threading.Thread(target=authenticate, daemon=True).start()
 
-def generateTimeText(now: datetime.time):
-    global timeText, timebg
+def generateTimeText(now: datetime.datetime):
+    global timeText, timebg, timeShadow
     nowTime = now.strftime('%H:%M')
+
+    lunarDate = LunarDate.fromSolarDate(now.year, now.month, now.day)
+
+    weekday = ["一", "二", "三", "四", "五", "六", "日"][now.weekday()]
+    monthCN = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"]
+    dayCN = ["", "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+                "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+                "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"]
+    ganzhiYear = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
+    ganzhiMonth = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+    yearGanZhi = f"{ganzhiYear[(lunarDate.year - 4) % 10]}{ganzhiMonth[(lunarDate.year - 4) % 12]}"
+
+    nowDate = f'{now.month}月{now.day}日 星期{weekday} {yearGanZhi}年{monthCN[lunarDate.month]}月{dayCN[lunarDate.day]}'
+
     n1, n2, sp, n3, n4 = nowTime[0], nowTime[1], nowTime[2], nowTime[3], nowTime[4]
 
-    timeBlur = makeImageBlur(backgroundImage.crop((WIDTH // 2 - scaled(35) * 2.7, HEIGHT // 4 - scaled(30), WIDTH // 2 + scaled(35) * 2.7, HEIGHT // 4 + scaled(40))), 10)
-    timeMask = makeImageMask(size=(timeBlur.width, timeBlur.height), color=(0, 0, 0, 64))
-    timeBack = makeImageRadius(mergeImage(timeBlur, timeMask), alpha=0.5, radius=10)
-    timebg   = maliang.Image(cv, position=(WIDTH // 2 + scaled(2), HEIGHT // 4 + scaled(5)), image=maliang.PhotoImage(timeBack), anchor='center')
+    timebg   = maliang.Image(cv, position=(WIDTH // 2 + scaled(2), HEIGHT // 6 + scaled(5)), anchor='center') # , image=maliang.PhotoImage(timeBack)
+
+    timeShadow = []
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85 + scaled(2), HEIGHT // 5 + scaled(1)), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8 + scaled(2), HEIGHT // 5 + scaled(1)), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(2), HEIGHT // 5 + scaled(1)), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8 + scaled(2), HEIGHT // 5 + scaled(1)), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9 + scaled(2), HEIGHT // 5 + scaled(1)), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))    
 
     timeText = []
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85, HEIGHT // 4), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8, HEIGHT // 4), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2, HEIGHT // 4), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8, HEIGHT // 4), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9, HEIGHT // 4), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(2), timebg.position[1] - scaled(73)), text=now.strftime('%A, %B, %d'), anchor='n', family='源流黑体 CJK', fontsize=scaled(25), weight='bold'))
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2, timebg.position[1] - scaled(75)), text=now.strftime('%A, %B, %d'), anchor='n', family='源流黑体 CJK', fontsize=scaled(25), weight='bold'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85, HEIGHT // 5), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8, HEIGHT // 5), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2, HEIGHT // 5), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8, HEIGHT // 5), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9, HEIGHT // 5), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))    
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(7), timebg.position[1] - scaled(37)), text=nowDate, anchor='n', family='源流黑体 CJK', fontsize=scaled(19)))
+
+    for i, widget in enumerate(timeShadow):
+        widget.style.set(fg=('#666666'))
 
     for i, widget in enumerate(timeText):
-        widget.style.set(fg=('#CCCCCC'))
-        maliang.animation.MoveWidget(widget, offset=(0, 0 - scaled(25)), duration=0).start()
+        widget.style.set(fg=('#EEEEEE'))
 
-    for i, widget in enumerate(timeText):
-        if i != 2:
-            widget.style.set(fg=(getDominantColor(backgroundImage)))
+    for i in (0, 1, 3, 4):
+        if timeText[i].get() == '1':
+            timeText[i].style.set(fg=(getDominantColor(backgroundImage)))
             break
-    
-    timeText[5].style.set(fg=('#666666'))
+
 
 def loginFocus():
     global FOCUS, passwdbox, passwdwdg, loginButton, passwdImg
@@ -271,6 +289,8 @@ def loginFocus():
         FOCUS = 2
 
         for i in timeText:
+            i.destroy()
+        for i in timeShadow:
             i.destroy()
         backgroundBlur()
         timebg.destroy()
@@ -296,9 +316,6 @@ def loginFocus():
 
         generateTimeText(datetime.datetime.now())
 
-        for i, widget in enumerate(timeText):
-            maliang.animation.MoveWidget(widget, offset=(0, scaled(25)), duration=animationDuration // 2, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=i * 25)
-
     elif FOCUS == 2:
         pass
 
@@ -309,9 +326,9 @@ avatarImage = Image.open(avatarPath)
 avatarImage = makeImageRadius(avatarImage, radius=avatarImage.size[0], alpha=0.9).resize((scaled(150), scaled(150)), 1)
 account     = maliang.IconButton(loginContainer, size=(scaled(150), scaled(150)), position=(scaled(400) // 2, scaled(400) // 2.75), image=maliang.PhotoImage(avatarImage), anchor='center', command=lambda: loginFocus())
 account.style.set(bg=('', '', ''), ol=('', '', ''))
-usernameO   = maliang.Text(loginContainer, position=(scaled(400) // 2 + scaled(2), scaled(400 / 1.55) + scaled(2)), text=getpass.getuser(), family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
-username    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=getpass.getuser(), family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
-usernameO.style.set(fg=('#666666'))
+loginUserO   = maliang.Text(loginContainer, position=(scaled(400) // 2 + scaled(2), scaled(400 / 1.55) + scaled(2)), text=loginUser, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
+loginUser    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=loginUser, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
+loginUserO.style.set(fg=('#666666'))
 passwdImg   = backgroundImage.crop((WIDTH // 2 - scaled(125), HEIGHT // 2 + scaled(103.03), WIDTH // 2 + scaled(125), HEIGHT // 2 + scaled(103.03) + scaled(35)))
 loginIcon   = Image.open('img/login.png')
 passwdMask  = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask(size=(passwdImg.size[0], passwdImg.size[1]), color=(0, 0, 0, 96))), radius=scaled(5), alpha=1)
@@ -319,8 +336,8 @@ passwdEMask = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask
 
 finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
-Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='Display Manager', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-MenuBar = maliang.SegmentedButton(finderBar, text=['Shutdown', 'Reboot', 'Enter Firmware Settings', 'About'], position=(scaled(70) + scaled(5.75 * (5 + len(Title.get()))), scaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
+Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='显示管理器', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
+MenuBar = maliang.SegmentedButton(finderBar, text=['关机', '重启', '进入固件设置', '关于'], position=(scaled(70) + scaled(5.75 * (7 + len(Title.get()))), scaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
 MenuBar.style.set(bg=('', ''), ol=('', ''))
 Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
 for i in MenuBar.children:
@@ -331,9 +348,6 @@ maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, 
 maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
 
 generateTimeText(datetime.datetime.now())
-
-for i, widget in enumerate(timeText):
-    maliang.animation.MoveWidget(widget, offset=(0, scaled(25)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=i * 25)
 
 
 root.mainloop()
