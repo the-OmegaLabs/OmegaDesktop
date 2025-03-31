@@ -296,7 +296,7 @@ def loginFocus():
         timebg.destroy()
 
         passwdbox   = maliang.Image(loginContainer, position=(scaled(400) // 2, scaled(400 // 1.25)), anchor='center', image=maliang.PhotoImage(passwdMask))
-        passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='Password', show='*')
+        passwdwdg   = maliang.InputBox(passwdbox, position=(0, 0), anchor='center', size=(scaled(250), scaled(40)), fontsize=scaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
         loginButton = maliang.IconButton(passwdwdg, position=(scaled(107), scaled(0)), anchor='center', size=(scaled(30), scaled(30)), image=maliang.PhotoImage(loginIcon.resize((scaled(25), scaled(25)), 1)), command=lambda: login(passwdwdg.get()))
         passwdwdg.bind('<Return>', lambda _: login(passwdwdg.get()))
         passwdwdg.style.set(bg=('', '', ''), ol=('', '', ''))
@@ -337,7 +337,7 @@ passwdEMask = makeImageRadius(mergeImage(makeImageBlur(passwdImg), makeImageMask
 finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
 Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='显示管理器', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-MenuBar = maliang.SegmentedButton(finderBar, text=['关机', '重启', '进入固件设置', '关于'], position=(scaled(70) + scaled(5.75 * (7 + len(Title.get()))), scaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
+MenuBar = maliang.SegmentedButton(finderBar, text=['关机', '重启', '进入固件设置', '关于'], position=(scaled(70) + scaled(5.75 * (8 + len(Title.get()))), scaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
 MenuBar.style.set(bg=('', ''), ol=('', ''))
 Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
 for i in MenuBar.children:
