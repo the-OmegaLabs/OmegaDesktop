@@ -12,7 +12,7 @@ import pam
 import platform
 from lunardate import LunarDate
 
-SCALE = 1.25
+SCALE = 2
 FOCUS = 0
 LOWGPU = 0
 animationFPS   = 1000
@@ -80,7 +80,7 @@ def showAbout():
                     position=(scaled(151), scaled(255)), anchor='center', 
                     family='源流黑体 CJK', fontsize=scaled(15)).style.set(fg='#999999')
     
-    maliang.Text(aboutWindow, text='© 2025 Omega Labs | Omega 桌面环境', 
+    maliang.Text(aboutWindow, text='© 2025 Omega Labs | OmegaOS 桌面环境', 
                     position=(scaled(151), scaled(327)), anchor='center', 
                     family='源流黑体 CJK', fontsize=scaled(11)).style.set(fg='#DDDDDD')
     
@@ -133,11 +133,11 @@ maliang.toolbox.load_font('font/bold.otf', private=True)
 
 root = maliang.Tk(position=(-5, 0))
 root.title('[DEVELOPMENT] Omega Desktop Compositor')
-# WIDTH = root.winfo_screenwidth()
-# HEIGHT = root.winfo_screenheight()
-# root.fullscreen(1)
-WIDTH  = 1600
-HEIGHT = 900
+WIDTH = root.winfo_screenwidth()
+HEIGHT = root.winfo_screenheight()
+root.fullscreen(1)
+# WIDTH  = 1600
+# HEIGHT = 900
 iconImage = Image.open(iconPath)
 root.maxsize(WIDTH, HEIGHT)
 root.minsize(WIDTH, HEIGHT)
@@ -257,11 +257,11 @@ def generateTimeText(now: datetime.datetime):
     timebg   = maliang.Image(cv, position=(WIDTH // 2 + scaled(2), HEIGHT // 6 + scaled(5)), anchor='center') # , image=maliang.PhotoImage(timeBack)
 
     timeShadow = []
-    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85 + scaled(2), HEIGHT // 5 + scaled(1)), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8 + scaled(2), HEIGHT // 5 + scaled(1)), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(2), HEIGHT // 5 + scaled(1)), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
-    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8 + scaled(2), HEIGHT // 5 + scaled(1)), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9 + scaled(2), HEIGHT // 5 + scaled(1)), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))    
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85 + scaled(1), HEIGHT // 5 + scaled(1)), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8 + scaled(1), HEIGHT // 5 + scaled(1)), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(1), HEIGHT // 5 + scaled(1)), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8 + scaled(1), HEIGHT // 5 + scaled(1)), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9 + scaled(1), HEIGHT // 5 + scaled(1)), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))    
 
     timeText = []
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85, HEIGHT // 5), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
@@ -326,7 +326,7 @@ avatarImage = Image.open(avatarPath)
 avatarImage = makeImageRadius(avatarImage, radius=avatarImage.size[0], alpha=0.9).resize((scaled(150), scaled(150)), 1)
 account     = maliang.IconButton(loginContainer, size=(scaled(150), scaled(150)), position=(scaled(400) // 2, scaled(400) // 2.75), image=maliang.PhotoImage(avatarImage), anchor='center', command=lambda: loginFocus())
 account.style.set(bg=('', '', ''), ol=('', '', ''))
-loginUserO   = maliang.Text(loginContainer, position=(scaled(400) // 2 + scaled(2), scaled(400 / 1.55) + scaled(2)), text=loginUser, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
+loginUserO   = maliang.Text(loginContainer, position=(scaled(400) // 2 + scaled(1), scaled(400 / 1.55) + scaled(1)), text=loginUser, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
 loginUser    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=loginUser, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
 loginUserO.style.set(fg=('#666666'))
 passwdImg   = backgroundImage.crop((WIDTH // 2 - scaled(125), HEIGHT // 2 + scaled(103.03), WIDTH // 2 + scaled(125), HEIGHT // 2 + scaled(103.03) + scaled(35)))
