@@ -143,36 +143,62 @@ maliang.theme.manager.set_color_mode('dark')
 cv = maliang.Canvas(root, auto_zoom=False)
 cv.place(width=WIDTH, height=HEIGHT)
 
-def destroySubBar(bg, widget):
-    subBarBack.destroy()
-    subBar.destroy()
+def destroySubBar(event=None, fromSubBar=False):
+    global subBarActivated
+    try:
+        if fromSubBar:
+            subBarBack.destroy()
+            subBar.destroy()
+        else:
+            if event.x < subBar.position[0] or event.x > subBar.position[0] + subBar.size[0] or event.y < subBar.position[1] or event.y > subBar.position[1] + subBar.size[1]:
+                subBarBack.destroy()
+                subBar.destroy()
+    except:
+        pass
+
 
 def menubarHandler(i):
-    global subBarBack, subBar
+    global subBarBack, subBar, subBarActivated
 
-    destroySubBar(subBarBack, subBar)
-    obj = [
-        '关于本机',
-        '系统偏好设置...',
-        'Plusto App Store...',
-        '进程管理器...',
-        '休眠',
-        '重新启动...',
-        '关机...',
-        '锁定屏幕',
-        f'退出登录 \"{loginUser}\"...              '
-    ]
-    subBar = maliang.SegmentedButton(finderBar, text=obj, position=(MenuBar.children[i].position[0] + scaled(2), finderHEIGHT + scaled(1)), family='源流黑体 CJK', fontsize=scaled(15), command=menubarHandler, layout='vertical')
-    position, size = subBar.position, subBar.size
-    subBar.destroy()
-    subBarBlur = makeImageBlur(backgroundImage.crop((position[0], position[1], position[0] + size[0], position[1] + size[1])))
-    subBarMask = makeImageRadius(mergeImage(subBarBlur, makeImageMask(size)), alpha=1, radius=3)
-    subBarBack  = maliang.Image(cv, position=position, size=size, image=maliang.PhotoImage(subBarMask))
-    subBar = maliang.SegmentedButton(finderBar, text=obj, position=position, family='源流黑体 CJK', fontsize=scaled(15), command=menubarHandler, layout='vertical')
-    
-    subBar.style.set(bg=('', ''), ol=('', ''))
-    for i in subBar.children:
-        i.style.set(fg=('#DDDDDD', '#EEEEEE', '#FFFFFF', '#DDDDDD', '#FFFFFF', '#FFFFFF'), bg=('', '', domiantColor, '', '', domiantColor), ol=('', '', '', '', '', ''))
+    if subBarActivated == i:
+        subBarActivated = -1
+        destroySubBar(fromSubBar=True)
+        return 0
+
+    subBarActivated = i
+
+    if i == 0:
+        obj = [
+            '关于本机',
+            '系统偏好设置...',
+            'Plusto App Store...',
+            '进程管理器...',
+            '休眠',
+            '重新启动...',
+            '关机...',
+            '锁定屏幕',
+            f'退出登录 \"{loginUser}\"...              '
+        ]
+
+        position, size = (MenuBar.children[i].position[0] + scaled(2), finderHEIGHT + scaled(1)), (scaled(239), scaled(356))
+
+        subBarBlur = makeImageBlur(backgroundImage.crop((position[0], position[1], position[0] + size[0], position[1] + size[1])))
+        subBarMask = makeImageRadius(mergeImage(subBarBlur, makeImageMask(size)), alpha=1, radius=5)
+        subBarBack = maliang.Image(cv, position=position, size=size, image=maliang.PhotoImage(subBarMask))
+
+        subBar = maliang.SegmentedButton(
+            finderBar, text=obj, position=position, 
+            family='源流黑体 CJK', fontsize=scaled(15), command=menubarHandler, layout='vertical'
+        )
+        print(subBar.position)
+        
+        subBar.style.set(bg=('', ''), ol=('', ''))
+        for i in subBar.children:
+            i.style.set(fg=('#DDDDDD', '#EEEEEE', '#FFFFFF', '#DDDDDD', '#FFFFFF', '#FFFFFF'), 
+                        bg=('', '', domiantColor, '', '', domiantColor), 
+                        ol=('', '', '', '', '', ''))
+
+
 
 
 backgroundImage = Image.open(backgroundPath).convert('RGBA')
@@ -189,11 +215,12 @@ Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text=
 MenuBar = maliang.SegmentedButton(finderBar, text=['文件', '编辑', '前往', '窗口', '帮助'], position=(Title.position[0] + Title.size[0] + scaled(25) + scaled(len(Title.get()) * 4), scaled(45 // 2) + scaled(1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
 MenuBar.style.set(bg=('', ''), ol=('', ''))
 Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-subBarBack  = maliang.Image(cv, position=(0, 0), image=None)
-subBar = maliang.SegmentedButton(finderBar, position=(-100, 0), family='源流黑体 CJK', fontsize=scaled(15), command=menubarHandler, layout='vertical')
+subBarActivated = -1
 
 for i in MenuBar.children:
     i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', domiantColor, '', '', domiantColor), ol=('', '', '', '', '', ''))
+
+root.bind("<Button-1>", lambda event: destroySubBar(event))
 
 maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
 maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
