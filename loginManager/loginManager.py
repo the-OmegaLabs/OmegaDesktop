@@ -12,7 +12,7 @@ import pam
 import platform
 from lunardate import LunarDate
 
-SCALE = 2
+SCALE = 1.5
 FOCUS = 0
 LOWGPU = 0
 animationFPS   = 1000
