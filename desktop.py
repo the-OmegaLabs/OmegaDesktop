@@ -180,7 +180,7 @@ def menubarHandler(i):
             f'退出登录 \"{loginUser}\"...              '
         ]
 
-        position, size = (MenuBar.children[i].position[0] + scaled(2), finderHEIGHT + scaled(1)), (scaled(46) * len(obj), scaled(356))
+        position, size = (MenuBar.children[i].position[0] + scaled(2), finderHEIGHT + scaled(1)), (max(len(item) for item in obj) * scaled(7), scaled(41) * len(obj))
 
         subBarBlur = makeImageBlur(backgroundImage.crop((position[0], position[1], position[0] + size[0], position[1] + size[1])))
         subBarMask = makeImageRadius(mergeImage(subBarBlur, makeImageMask(size)), alpha=1, radius=5)
@@ -190,7 +190,6 @@ def menubarHandler(i):
             finderBar, text=obj, position=position, 
             family='源流黑体 CJK', fontsize=scaled(15), command=menubarHandler, layout='vertical'
         )
-        print(subBar.position)
         
         subBar.style.set(bg=('', ''), ol=('', ''))
         for i in subBar.children:
