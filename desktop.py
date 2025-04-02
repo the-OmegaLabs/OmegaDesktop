@@ -316,17 +316,21 @@ dockBar = maliang.Label(cv, position=(WIDTH // 2, HEIGHT - dockHEIGHT - scaled(5
 dockTooltips = []
 
 finderIcon  = maliang.IconButton(dockBar, position=(0 - 1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/file.png').resize((scaled(55), scaled(55)), 1)))
-dockTooltips.append(maliang.Tooltip(finderIcon, text='文件管理器', align='up', fontsize=scaled(13), family='源流黑体 CJK'))
-
 settingsIcon  = maliang.IconButton(dockBar, position=(1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/settings.png').resize((scaled(55), scaled(55)), 1)))
+
+maliang.configs.Env.system = 'Windows11'
+dockTooltips.append(maliang.Tooltip(finderIcon, text='文件管理器', align='up', fontsize=scaled(13), family='源流黑体 CJK'))
 dockTooltips.append(maliang.Tooltip(settingsIcon, text='系统偏好设置', align='up', fontsize=scaled(13), family='源流黑体 CJK'))
+maliang.configs.Env.system = 'Windows10'
 
 dockBar.style.set(bg=('', ''), ol=('', ''))
 dockBar.style.set(ol=('', ''))
 for i in dockBar.children:
     i.style.set(bg=('', '', ''), ol=('', '', ''))
 
+
+
 for i in dockTooltips:
-    i.style.set(ol=(''))
+    i.style.set(ol=(''), theme='light')
 
 root.mainloop()
