@@ -1,19 +1,19 @@
 import datetime
-from PIL import Image, ImageFilter, ImageDraw
+from PIL import Image, ImageFilter, ImageDraw, ImageGrab
 import maliang
 import math
 import maliang.animation
 import maliang.theme
 import maliang.toolbox
 
-SCALE = 1
+SCALE = 1.5
 FOCUS = 0
 LOWGPU = 0
 animationFPS   = 1000
 backgroundPath = 'bg/default.png'
 avatarPath     = 'img/user.jpg'
 iconPath       = 'img/main.png'
-DMiconPath     = 'img/dm.png'
+DMiconPath     = 'img/de.png'
 loginUser      = 'Stevesuk'
 
 if LOWGPU:
@@ -35,6 +35,11 @@ def getDominantColor(image):
     brightestColor = max(brightnessValues, key=lambda x: x[0])[1]
     
     return f"#{brightestColor[0]:02X}{brightestColor[1]:02X}{brightestColor[2]:02X}"    
+
+def takeShot(*args):
+    x, y = root.winfo_x(), root.winfo_y()
+    img = ImageGrab.grab((x, y, x + WIDTH, y + HEIGHT))
+    return img
 
 def showAbout():
     def enable_drag(widget):
@@ -156,7 +161,69 @@ def destroySubBar(event=None, fromSubBar=False):
     except:
         pass
 
+def enable_drag(widget):
+    drag_data = {'x': None, 'y': None}
 
+    def on_press(event):
+        if widget.detect(event.x, event.y):
+            drag_data['x'] = event.x
+            drag_data['y'] = event.y
+
+    def on_drag(event):
+        if drag_data['x'] is not None and drag_data['y'] is not None:
+            dx = event.x - drag_data['x']
+            dy = event.y - drag_data['y']
+            widget.move(dx, dy)
+
+            drag_data['x'] = event.x
+            drag_data['y'] = event.y
+
+    def on_release(event):
+        drag_data['x'] = None
+        drag_data['y'] = None
+
+    widget.bind('<Button-1>', on_press)
+    widget.bind('<B1-Motion>', on_drag)
+    widget.bind('<ButtonRelease-1>', on_release)
+
+def showAbout(appName, desc, version, company):
+    aboutWindow = maliang.Label(cv, size=(scaled(300), scaled(400)), position=(WIDTH // 2 - scaled(150), HEIGHT // 2 - scaled(200)))
+
+    maliang.Image(aboutWindow, position=(scaled(150), scaled(30)), anchor='n', image=maliang.PhotoImage(Image.open(DMiconPath).resize((scaled(200), scaled(200)), 1)))
+
+    maliang.Text(aboutWindow, text=appName, 
+                    position=(scaled(151), scaled(230)), anchor='center', 
+                    family='源流黑体 CJK', fontsize=scaled(20), weight='bold')
+
+    maliang.Text(aboutWindow, text=desc, 
+                    position=(scaled(151), scaled(255)), anchor='center', 
+                    family='源流黑体 CJK', fontsize=scaled(15)).style.set(fg='#DDDDDD')
+    
+    maliang.Text(aboutWindow, text=version, 
+                    position=(scaled(151), scaled(275)), anchor='center', 
+                    family='源流黑体 CJK', fontsize=scaled(10)).style.set(fg='#999999')
+    
+    maliang.Text(aboutWindow, text=company, 
+                    position=(scaled(151), scaled(327)), anchor='center', 
+                    family='源流黑体 CJK', fontsize=scaled(11)).style.set(fg='#DDDDDD')
+    
+    closeButton = maliang.Button(aboutWindow, text='OK', 
+                    position=(scaled(151), scaled(355)), size=(scaled(100), scaled(40)), 
+                    command=aboutWindow.destroy, anchor='center', family='源流黑体 CJK', fontsize=scaled(20))
+
+    closeButton.style.set(ol=('', '', ''), bg=('', '', ''))
+
+    enable_drag(aboutWindow)
+
+def subBarHandler(i):
+    global subBarActivated
+    subBarActivated = -1    
+    destroySubBar(fromSubBar=True)
+
+    if MenuBar.get() == 0 and i == 1:
+        showAbout(appName='桌面', desc='OmegaOS 桌面体验', version='\"桌面\" 版本 1.0.0', company='© 2025 Omega Labs | OmegaOS 桌面环境')
+        
+        
 def menubarHandler(i):
     global subBarBack, subBar, subBarActivated
 
@@ -167,9 +234,11 @@ def menubarHandler(i):
 
     subBarActivated = i
 
+    obj = []
     if i == 0:
         obj = [
             '关于本机',
+            '关于桌面环境',
             '系统偏好设置...',
             'Plusto App Store...',
             '进程管理器...',
@@ -179,23 +248,37 @@ def menubarHandler(i):
             '锁定屏幕',
             f'退出登录 \"{loginUser}\"...              '
         ]
-
-        position, size = (MenuBar.children[i].position[0] + scaled(2), finderHEIGHT + scaled(1)), (max(len(item) for item in obj) * scaled(7), scaled(41) * len(obj))
-
-        subBarBlur = makeImageBlur(backgroundImage.crop((position[0], position[1], position[0] + size[0], position[1] + size[1])))
-        subBarMask = makeImageRadius(mergeImage(subBarBlur, makeImageMask(size)), alpha=1, radius=5)
-        subBarBack = maliang.Image(cv, position=position, size=size, image=maliang.PhotoImage(subBarMask))
-
-        subBar = maliang.SegmentedButton(
-            finderBar, text=obj, position=position, 
-            family='源流黑体 CJK', fontsize=scaled(15), command=menubarHandler, layout='vertical'
-        )
+    elif i == 4:
+        obj = [
+            '关于此桌面环境',
+        ]
         
-        subBar.style.set(bg=('', ''), ol=('', ''))
-        for i in subBar.children:
-            i.style.set(fg=('#DDDDDD', '#EEEEEE', '#FFFFFF', '#DDDDDD', '#FFFFFF', '#FFFFFF'), 
-                        bg=('', '', domiantColor, '', '', domiantColor), 
-                        ol=('', '', '', '', '', ''))
+        
+    position = (MenuBar.children[i].position[0] + scaled(2), finderHEIGHT)
+    
+    subBar = maliang.SegmentedButton(
+        finderBar, text=obj, position=position,
+        family='源流黑体 CJK', fontsize=scaled(13), command=menubarHandler, layout='vertical'
+    )
+
+    size = subBar.size
+
+    subBar.destroy()
+        
+    subBarBlur = makeImageBlur(backgroundImage.crop((position[0], position[1], position[0] + size[0], position[1] + size[1])))
+    subBarMask = makeImageRadius(mergeImage(subBarBlur, makeImageMask(size)), alpha=1, radius=5)
+    subBarBack = maliang.Image(cv, position=position, size=size, image=maliang.PhotoImage(subBarMask))
+
+    subBar = maliang.SegmentedButton(
+        finderBar, text=obj, position=position,
+        family='源流黑体 CJK', fontsize=scaled(13), command=subBarHandler, layout='vertical'
+    )
+    
+    subBar.style.set(bg=('', ''), ol=('', ''))
+    for i in subBar.children:
+        i.style.set(fg=('#DDDDDD', '#EEEEEE', '#FFFFFF', '#DDDDDD', '#FFFFFF', '#FFFFFF'), 
+                    bg=('', '', '', '', '', ''), 
+                    ol=('', '', '', '', '', ''))
 
 
 
@@ -211,7 +294,7 @@ finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderH
 finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
 Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='桌面', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-MenuBar = maliang.SegmentedButton(finderBar, text=['文件', '编辑', '前往', '窗口', '帮助'], position=(Title.position[0] + Title.size[0] + scaled(25) + scaled(len(Title.get()) * 4), scaled(45 // 2) + scaled(1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
+MenuBar = maliang.SegmentedButton(finderBar, text=['文件', '编辑', '前往', '窗口', '帮助'], position=(Title.position[0] + scaled(30) + scaled(len(Title.get()) * 4), scaled(45 // 2) + scaled(1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
 MenuBar.style.set(bg=('', ''), ol=('', ''))
 Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
 subBarActivated = -1
@@ -224,5 +307,25 @@ root.bind("<Button-1>", lambda event: destroySubBar(event))
 maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
 maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
 
+
+icons = 2
+dockHEIGHT = scaled(60)
+
+dockBar = maliang.Label(cv, position=(WIDTH // 2, HEIGHT - dockHEIGHT - scaled(5)), size=(icons * dockHEIGHT, dockHEIGHT), anchor='n')
+dockTooltips = []
+
+finderIcon  = maliang.IconButton(dockBar, position=(0 - 1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/file.png').resize((scaled(55), scaled(55)), 1)))
+dockTooltips.append(maliang.Tooltip(finderIcon, text='文件管理器', align='up', fontsize=scaled(13), family='源流黑体 CJK'))
+
+settingsIcon  = maliang.IconButton(dockBar, position=(1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/settings.png').resize((scaled(55), scaled(55)), 1)))
+dockTooltips.append(maliang.Tooltip(settingsIcon, text='系统偏好设置', align='up', fontsize=scaled(13), family='源流黑体 CJK'))
+
+dockBar.style.set(bg=('', ''), ol=('', ''))
+dockBar.style.set(ol=('', ''))
+for i in dockBar.children:
+    i.style.set(bg=('', '', ''), ol=('', '', ''))
+
+for i in dockTooltips:
+    i.style.set(ol=(''))
 
 root.mainloop()

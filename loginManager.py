@@ -20,7 +20,7 @@ backgroundPath = 'bg/default.png'
 avatarPath     = 'img/user.jpg'
 iconPath       = 'img/main.png'
 DMiconPath     = 'img/dm.png'
-loginUser      = 'Stevesuk'
+loginUserName  = 'Stevesuk'
 
 if LOWGPU:
     animationDuration = 0
@@ -222,7 +222,7 @@ def login(passwd):
     def authenticate():
         if platform.system() == 'Linux':
             auth = pam.pam()
-            if auth.authenticate(loginUser, passwd):
+            if auth.authenticate(loginUserName, passwd):
                 success()
             else:
                 failed()
@@ -261,18 +261,18 @@ def generateTimeText(now: datetime.datetime):
     timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8 + scaled(1), HEIGHT // 5 + scaled(1)), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(1), HEIGHT // 5 + scaled(1)), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
     timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8 + scaled(1), HEIGHT // 5 + scaled(1)), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9 + scaled(1), HEIGHT // 5 + scaled(1)), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))    
+    timeShadow.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.93 + scaled(1), HEIGHT // 5 + scaled(1)), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))    
 
     timeText = []
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 1.85, HEIGHT // 5), text=n1, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 - scaled(35) * 0.8, HEIGHT // 5), text=n2, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
     timeText.append(maliang.Text(cv, position=(WIDTH // 2, HEIGHT // 5), text=sp, family='源流黑体 CJK', fontsize=scaled(60), weight='bold', anchor='center'))    
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 0.8, HEIGHT // 5), text=n3, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))
-    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.9, HEIGHT // 5), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))    
+    timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(35) * 1.93, HEIGHT // 5), text=n4, family='源流黑体 CJK', fontsize=scaled(65), weight='bold', anchor='center'))    
     timeText.append(maliang.Text(cv, position=(WIDTH // 2 + scaled(7), timebg.position[1] - scaled(37)), text=nowDate, anchor='n', family='源流黑体 CJK', fontsize=scaled(19)))
 
     for i, widget in enumerate(timeShadow):
-        widget.style.set(fg=('#666666'))
+        widget.style.set(fg=('#9F9F9F'))
 
     for i, widget in enumerate(timeText):
         widget.style.set(fg=('#EEEEEE'))
@@ -326,8 +326,8 @@ avatarImage = Image.open(avatarPath)
 avatarImage = makeImageRadius(avatarImage, radius=avatarImage.size[0], alpha=0.9).resize((scaled(150), scaled(150)), 1)
 account     = maliang.IconButton(loginContainer, size=(scaled(150), scaled(150)), position=(scaled(400) // 2, scaled(400) // 2.75), image=maliang.PhotoImage(avatarImage), anchor='center', command=lambda: loginFocus())
 account.style.set(bg=('', '', ''), ol=('', '', ''))
-loginUserO   = maliang.Text(loginContainer, position=(scaled(400) // 2 + scaled(1), scaled(400 / 1.55) + scaled(1)), text=loginUser, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
-loginUser    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=loginUser, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
+loginUserO   = maliang.Text(loginContainer, position=(scaled(400) // 2 + scaled(1), scaled(400 / 1.55) + scaled(1)), text=loginUserName, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
+loginUser    = maliang.Text(loginContainer, position=(scaled(400) // 2, scaled(400 / 1.55)), text=loginUserName, family='源流黑体 CJK', fontsize=scaled(28), anchor='center', weight='bold')
 loginUserO.style.set(fg=('#666666'))
 passwdImg   = backgroundImage.crop((WIDTH // 2 - scaled(125), HEIGHT // 2 + scaled(103.03), WIDTH // 2 + scaled(125), HEIGHT // 2 + scaled(103.03) + scaled(35)))
 loginIcon   = Image.open('img/login.png')
