@@ -296,7 +296,8 @@ Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=
 Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='桌面', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
 MenuBar = maliang.SegmentedButton(finderBar, text=['文件', '编辑', '前往', '窗口', '帮助'], position=(Title.position[0] + scaled(30) + scaled(len(Title.get()) * 4), scaled(45 // 2) + scaled(1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
 MenuBar.style.set(bg=('', ''), ol=('', ''))
-Time = maliang.Text(finderBar, position=(WIDTH - scaled(50), scaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
+nowTime = datetime.datetime.now()
+Time = maliang.Text(finderBar, position=(WIDTH - scaled(12), finderHEIGHT // 2), text=f'{nowTime.month}/{nowTime.day} {nowTime.strftime(f"%a %H:%M")}', family='源流黑体 CJK', fontsize=scaled(15), weight='bold', anchor='e')
 subBarActivated = -1
 
 for i in MenuBar.children:
