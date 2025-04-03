@@ -207,7 +207,7 @@ def showAbout(appName, desc, version, company):
                     position=(scaled(151), scaled(327)), anchor='center', 
                     family='源流黑体 CJK', fontsize=scaled(11)).style.set(fg='#DDDDDD')
     
-    closeButton = maliang.Button(aboutWindow, text='OK', 
+    closeButton = maliang.Button(aboutWindow, text='确定', 
                     position=(scaled(151), scaled(355)), size=(scaled(100), scaled(40)), 
                     command=aboutWindow.destroy, anchor='center', family='源流黑体 CJK', fontsize=scaled(20))
 
@@ -215,6 +215,12 @@ def showAbout(appName, desc, version, company):
 
     enable_drag(aboutWindow)
 
+def logout():
+    maliang.animation.MoveWidget(dockBar, offset=(0, scaled(80)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
+    maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), end=root.destroy, duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
+    
+    
+    
 def subBarHandler(i):
     global subBarActivated
     subBarActivated = -1    
@@ -222,6 +228,8 @@ def subBarHandler(i):
 
     if MenuBar.get() == 0 and i == 1:
         showAbout(appName='桌面', desc='OmegaOS 桌面体验', version='\"桌面\" 版本 1.0.0', company='© 2025 Omega Labs | OmegaOS 桌面环境')
+    if MenuBar.get() == 0 and i == 9:
+        logout()
         
         
 def menubarHandler(i):
@@ -280,9 +288,6 @@ def menubarHandler(i):
                     bg=('', '', '', '', '', ''), 
                     ol=('', '', '', '', '', ''))
 
-
-
-
 backgroundImage = Image.open(backgroundPath).convert('RGBA')
 backgroundImage.thumbnail((WIDTH, WIDTH), 1)
 domiantColor = getDominantColor(backgroundImage)
@@ -305,22 +310,36 @@ for i in MenuBar.children:
 
 root.bind("<Button-1>", lambda event: destroySubBar(event))
 
-maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
-maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
+def launchApp(name):
+    shakes = [-15, 15, -15, 15, -15, 15]
+    def shakeAnimation(index):
+        if index < len(shakes):
+            i = shakes[index]
+            duration = animationDuration // 3
+            controller = maliang.animation.smooth
 
+            animation = maliang.animation.MoveWidget(dockApplications['app'][name], offset=(0, scaled(i)), duration=duration, controller=controller, fps=animationFPS)
+            animation.start()
+            animation = maliang.animation.MoveWidget(dockApplications['tooltip'][name], offset=(0, scaled(i)), duration=duration, controller=controller, fps=animationFPS)
+            animation.start()
+            root.after(duration, shakeAnimation, index + 1)
+        else:
+            return 0
+
+    cv.after(0, lambda: shakeAnimation(0))
 
 icons = 2
 dockHEIGHT = scaled(60)
 
 dockBar = maliang.Label(cv, position=(WIDTH // 2, HEIGHT - dockHEIGHT - scaled(5)), size=(icons * dockHEIGHT, dockHEIGHT), anchor='n')
-dockTooltips = []
+dockApplications = {'app': {}, 'tooltip': {}}
 
-finderIcon  = maliang.IconButton(dockBar, position=(0 - 1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/file.png').resize((scaled(55), scaled(55)), 1)))
-settingsIcon  = maliang.IconButton(dockBar, position=(1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/settings.png').resize((scaled(55), scaled(55)), 1)))
+dockApplications['app']['finder'] = maliang.IconButton(dockBar, position=(0 - 1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/file.png').resize((scaled(55), scaled(55)), 1)), command=lambda: (launchApp('finder')))
+dockApplications['app']['settings'] = maliang.IconButton(dockBar, position=(1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/settings.png').resize((scaled(55), scaled(55)), 1)), command=lambda: (launchApp('settings')))
 
 maliang.configs.Env.system = 'Windows11'
-dockTooltips.append(maliang.Tooltip(finderIcon, text='文件管理器', align='up', fontsize=scaled(13), family='源流黑体 CJK'))
-dockTooltips.append(maliang.Tooltip(settingsIcon, text='系统偏好设置', align='up', fontsize=scaled(13), family='源流黑体 CJK'))
+dockApplications['tooltip']['finder'] = maliang.Tooltip(dockApplications['app']['finder'], text='文件管理器', align='up', fontsize=scaled(13), family='源流黑体 CJK')
+dockApplications['tooltip']['settings'] = maliang.Tooltip(dockApplications['app']['settings'], text='系统偏好设置', align='up', fontsize=scaled(13), family='源流黑体 CJK')
 maliang.configs.Env.system = 'Windows10'
 
 dockBar.style.set(bg=('', ''), ol=('', ''))
@@ -328,9 +347,14 @@ dockBar.style.set(ol=('', ''))
 for i in dockBar.children:
     i.style.set(bg=('', '', ''), ol=('', '', ''))
 
+for i in dockApplications['tooltip']:
+    dockApplications['tooltip'][i].style.set(ol=(''), theme='light')
 
+maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
+maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
 
-for i in dockTooltips:
-    i.style.set(ol=(''), theme='light')
+maliang.animation.MoveWidget(dockBar, offset=(0, scaled(80)), duration=0, controller=maliang.animation.smooth, fps=animationFPS).start()
+maliang.animation.MoveWidget(dockBar, offset=(0, 0 - scaled(80)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
+
 
 root.mainloop()

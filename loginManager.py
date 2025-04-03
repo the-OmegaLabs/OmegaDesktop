@@ -1,4 +1,3 @@
-import getpass
 import os
 import threading
 import maliang
@@ -175,6 +174,8 @@ finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderH
 def menubarHandler(name):
     if name == 0:
         os.system('systemctl poweroff')
+        if platform.system() != 'Linux':
+            root.destroy()
     
     elif name == 1:
         os.system('systemctl reboot')
@@ -216,7 +217,10 @@ def login(passwd):
         cv.after(0, lambda: shakeAnimation(0))
 
     def success():
-        root.after(0, lambda: root.destroy())
+        maliang.animation.MoveWidget(finderBar, offset=(0, 0 - scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start(delay=animationDuration // 2)
+        root.after(500, lambda: (loginFocus(), spinner.destroy()))
+        root.after(1000, lambda: (os.system('python desktop.py')))
+        root.after(1000, lambda: maliang.animation.MoveWidget(finderBar, offset=(0, scaled(50)), duration=animationDuration, controller=maliang.animation.ease_out, fps=animationFPS).start())
 
     
     def authenticate():
