@@ -288,8 +288,30 @@ def menubarHandler(i):
                     bg=('', '', '', '', '', ''), 
                     ol=('', '', '', '', '', ''))
 
+
 backgroundImage = Image.open(backgroundPath).convert('RGBA')
-backgroundImage.thumbnail((WIDTH, WIDTH), 1)
+
+image_width, image_height = backgroundImage.size
+aspect_ratio = image_width / image_height
+screen_aspect_ratio = WIDTH / HEIGHT
+
+if aspect_ratio > screen_aspect_ratio:
+    new_height = HEIGHT
+    new_width = int(HEIGHT * aspect_ratio)
+else:
+    new_width = WIDTH
+    new_height = int(WIDTH / aspect_ratio)
+
+backgroundImage = backgroundImage.resize((new_width, new_height), 1)
+
+left = (new_width - WIDTH) / 2
+top = (new_height - HEIGHT) / 2
+right = (new_width + WIDTH) / 2
+bottom = (new_height + HEIGHT) / 2
+
+backgroundImage = backgroundImage.crop((left, top, right, bottom))
+
+
 domiantColor = getDominantColor(backgroundImage)
 background = maliang.Image(cv, position=(0, 0), size=backgroundImage.size, image=maliang.PhotoImage(backgroundImage))
 

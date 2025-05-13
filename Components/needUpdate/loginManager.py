@@ -1,7 +1,6 @@
 import os
 import threading
 import maliang
-import math
 from PIL import Image, ImageFilter, ImageDraw
 import maliang.animation
 import maliang.theme
@@ -15,7 +14,7 @@ SCALE = 1.5
 FOCUS = 0
 LOWGPU = 0
 animationFPS   = 1000
-backgroundPath = 'bg/default.png'
+backgroundPath = 'bg/bg2.jpg'
 avatarPath     = 'img/user.jpg'
 iconPath       = 'img/main.png'
 DMiconPath     = 'img/dm.png'
@@ -26,20 +25,21 @@ if LOWGPU:
 else:
     animationDuration = 700
 
+
 def getDominantColor(image):
+    # Convert image to RGB
     image = image.convert('RGB')
+    
+    # Get the most common 100 colors
     colors = image.getcolors(image.size[0] * image.size[1])
+    topColors = sorted(colors, key=lambda x: x[0], reverse=True)[:100]
     
-    topColors = sorted(colors, key=lambda x: x[0], reverse=True)[:300]
+    # Calculate brightness for each color and get the brightest one
+    brightestColor = max(topColors, key=lambda x: (0.299 * x[1][0] + 0.587 * x[1][1] + 0.114 * x[1][2]))
     
-    brightnessValues = []
-    for count, (r, g, b) in topColors:
-        brightness = 0.299 * r + 0.587 * g + 0.114 * b
-        brightnessValues.append((brightness, (r, g, b)))
-    
-    brightestColor = max(brightnessValues, key=lambda x: x[0])[1]
-    
-    return f"#{brightestColor[0]:02X}{brightestColor[1]:02X}{brightestColor[2]:02X}"    
+    # Return the brightest color in hex format
+    return f"#{brightestColor[1][0]:02X}{brightestColor[1][1]:02X}{brightestColor[1][2]:02X}"
+
 
 def showAbout():
     def enable_drag(widget):
@@ -91,10 +91,6 @@ def showAbout():
 
     enable_drag(aboutWindow)
 
-
-def getRatio(size):
-    gcd = math.gcd(size[0], size[1]) 
-    return f"{size[0] // gcd}:{size[1] // gcd}"
 
 def makeImageRadius(img, radius=30, alpha=0.5):
     img = img.convert("RGBA")
@@ -150,9 +146,28 @@ cv.place(width=WIDTH, height=HEIGHT)
 
 
 finderHEIGHT = int(45 * SCALE)
-backgroundImage = Image.open(backgroundPath).convert('RGBA')
-backgroundImage.thumbnail((WIDTH, WIDTH), 1)
 
+backgroundImage = Image.open(backgroundPath).convert('RGBA')
+
+image_width, image_height = backgroundImage.size
+aspect_ratio = image_width / image_height
+screen_aspect_ratio = WIDTH / HEIGHT
+
+if aspect_ratio > screen_aspect_ratio:
+    new_height = HEIGHT
+    new_width = int(HEIGHT * aspect_ratio)
+else:
+    new_width = WIDTH
+    new_height = int(WIDTH / aspect_ratio)
+
+backgroundImage = backgroundImage.resize((new_width, new_height), 1)
+
+left = (new_width - WIDTH) / 2
+top = (new_height - HEIGHT) / 2
+right = (new_width + WIDTH) / 2
+bottom = (new_height + HEIGHT) / 2
+
+backgroundImage = backgroundImage.crop((left, top, right, bottom))
 
 background = maliang.Image(cv, position=(0, 0), image=maliang.PhotoImage(backgroundImage))
 blurBackground = maliang.Image(cv, position=(0, HEIGHT * 1.5), image=maliang.PhotoImage(makeImageBlur(backgroundImage, 15)))
@@ -247,11 +262,19 @@ def generateTimeText(now: datetime.datetime):
 
     weekday = ["一", "二", "三", "四", "五", "六", "日"][now.weekday()]
     monthCN = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"]
-    dayCN = ["", "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
-                "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
-                "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"]
+    
+
+    dayCN = ['']
+    for i in ['初', '十', '廿']:
+        for j in range(1, 11, 1):
+            dayCN.append(f'{i}{monthCN[j]}')
+    dayCN[20] = '二十'
+
+    print(dayCN)
+
     ganzhiYear = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
     ganzhiMonth = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+
     yearGanZhi = f"{ganzhiYear[(lunarDate.year - 4) % 10]}{ganzhiMonth[(lunarDate.year - 4) % 12]}"
 
     nowDate = f'{now.month}月{now.day}日 星期{weekday} {yearGanZhi}年{monthCN[lunarDate.month]}月{dayCN[lunarDate.day]}'
