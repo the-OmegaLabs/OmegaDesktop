@@ -25,22 +25,6 @@ if LOWGPU:
 else:
     animationDuration = 700
 
-
-def getDominantColor(image):
-    # Convert image to RGB
-    image = image.convert('RGB')
-    
-    # Get the most common 100 colors
-    colors = image.getcolors(image.size[0] * image.size[1])
-    topColors = sorted(colors, key=lambda x: x[0], reverse=True)[:100]
-    
-    # Calculate brightness for each color and get the brightest one
-    brightestColor = max(topColors, key=lambda x: (0.299 * x[1][0] + 0.587 * x[1][1] + 0.114 * x[1][2]))
-    
-    # Return the brightest color in hex format
-    return f"#{brightestColor[1][0]:02X}{brightestColor[1][1]:02X}{brightestColor[1][2]:02X}"
-
-
 def showAbout():
     def enable_drag(widget):
         drag_data = {'x': None, 'y': None}
@@ -304,10 +288,7 @@ def generateTimeText(now: datetime.datetime):
     for i, widget in enumerate(timeText):
         widget.style.set(fg=('#EEEEEE'))
 
-    for i in (0, 1, 3, 4):
-        if timeText[i].get() == '1':
-            timeText[i].style.set(fg=(getDominantColor(backgroundImage)))
-            break
+
 
 
 def loginFocus():
