@@ -44,18 +44,28 @@ class Application():
 
         self.createWindow()
 
-    def getProportionalPicture(self, img: ImageFile.ImageFile, max_width: int, max_height: int):
-        image_gcd = math.gcd(img.size[0], img.size[1])
-        image_ratio = (img.size[0] // image_gcd, img.size[1] // image_gcd)
-        target_gcd = math.gcd(max_width, max_height)
-
-        return img.resize(size=(max_width, target_gcd * image_ratio[1]), resample=Image.Resampling.LANCZOS)
+    def getProportionalPicture(self, img: Image, max_width: int, max_height: int) -> ImageFile.ImageFile:
+        original_width, original_height = img.size
+        original_ratio = original_width / original_height
+        
+        target_ratio = max_width / max_height
+        
+        if original_ratio > target_ratio:
+            new_width = max_width
+            new_height = int(new_width / original_ratio)
+        else:
+            new_height = max_height
+            new_width = int(new_height * original_ratio)
+        
+        new_width, new_height = min(new_width, max_width), min(new_height, max_height)
+        
+        return img.resize((new_width, new_height), resample=Image.Resampling.LANCZOS)
 
     def createWindow(self):        
         maliang.Env.system = 'Windows10' # enable widget transparent
 
         self.root = maliang.Tk()
-        self.C_SCREENSIZE = self.root.size
+        self.C_SCREENSIZE = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
         self.IMG_bg = self.getProportionalPicture(self.IMG_original_bg, self.C_SCREENSIZE[0], self.C_SCREENSIZE[1])
         self.IMG_blured_bg = self.makeImageBlur(self.IMG_bg)
 
