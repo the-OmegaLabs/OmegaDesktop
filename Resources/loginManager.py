@@ -246,9 +246,8 @@ def generateTimeText(now: datetime.datetime):
 
     weekday = ["一", "二", "三", "四", "五", "六", "日"][now.weekday()]
     monthCN = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"]
-    
-
     dayCN = ['']
+    
     for i in ['初', '十', '廿']:
         for j in range(1, 11, 1):
             dayCN.append(f'{i}{monthCN[j]}')
@@ -300,6 +299,7 @@ def loginFocus():
             i.destroy()
         for i in timeShadow:
             i.destroy()
+            
         backgroundBlur()
         timebg.destroy()
 
