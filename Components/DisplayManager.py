@@ -99,9 +99,10 @@ class Application():
 
     def setStatus(self):
         if self.UI_STATUS == 0:
-            self.UI_STATUS = 1
+            self.UI_STATUS = 2
 
-            self.WDG_background.set(maliang.PhotoImage(self.IMG_bg_blured))
+            self.WDG_background.set(maliang.PhotoImage(self.IMG_bg_blured1))
+            self.WDG_background.set(maliang.PhotoImage(self.IMG_bg_blured2))
 
             for i in self.WDG_title_time_shadow:
                 i.destroy()
@@ -110,11 +111,42 @@ class Application():
                 i.destroy()
 
             self.WDG_title_date.destroy()
+            self.UI_STATUS = 1
+
+
+            self.WDG_passwdbox   = maliang.InputBox(self.WDG_loginContainer, position=(self.getScaled(400) // 2, self.getScaled(400 // 1.25)), size=(self.getScaled(250), self.getScaled(40)), anchor='center', fontsize=self.getScaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
+            self.WDG_passwdbox_size = self.WDG_passwdbox.size
+            self.WDG_passwdbox_position = self.WDG_passwdbox.position
+            self.WDG_passwdbox.destroy()
+
+            x1 = int(self.WDG_passwdbox_position[0] - self.WDG_passwdbox_size[0] // 2)
+            y1 = int(self.WDG_passwdbox_position[1] - self.WDG_passwdbox_size[1] // 2 - self.UI_HEIGHT // 3)
+            x2 = int(x1 + self.WDG_passwdbox_size[0])
+            y2 = int(y1 + self.WDG_passwdbox_size[1])
+
+            passwdImg = self.IMG_bg.crop((x1, y1, x2, y2))
+            passwdImg.save('1.png')
+
+            self.IMG_passwdMask  = self.makeRadiusImage(self.mergeImage(self.makeImageBlur(passwdImg), self.makeMaskImage(passwdImg.size)), radius=5, alpha=0.9)
+            self.WDG_passwdMask  = maliang.Image(self.cv, position=(x1, y1), image=maliang.PhotoImage(self.IMG_passwdMask))
+            self.WDG_passwdbox   = maliang.InputBox(self.WDG_loginContainer, position=(self.getScaled(400) // 2, self.getScaled(400 // 1.25)), size=(self.getScaled(250), self.getScaled(40)), anchor='center', fontsize=self.getScaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
+            self.WDG_passwdbox.style.set(bg=('', '', ''), ol=('', '', ''))
+            self.WDG_loginButton = maliang.IconButton(self.WDG_passwdbox, position=(self.getScaled(107), self.getScaled(0)), anchor='center', size=(self.getScaled(30), self.getScaled(30)), image=maliang.PhotoImage(self.IMG_icon_login.resize((self.getScaled(25), self.getScaled(25)), 1)))
             
+            self.WDG_passwdbox.bind('<Return>', lambda _: login(self.WDG_passwdbox.get()))
+            self.WDG_passwdbox.style.set(bg=('', '', ''), ol=('', '', ''))
+            self.WDG_loginButton.style.set(bg=('', '', ''), ol=('', '', ''))
+
+            maliang.animation.MoveWidget(self.WDG_loginContainer, offset=(0, 0 - self.UI_HEIGHT // 3), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
+            maliang.animation.MoveWidget(self.WDG_passwdMask, offset=(0, self.UI_HEIGHT // 1.5), duration=0, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
+            maliang.animation.MoveWidget(self.WDG_passwdMask, offset=(0, 0 - self.UI_HEIGHT // 1.5), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
+            
+                    
 
         elif self.UI_STATUS == 1:
-            self.UI_STATUS = 0
+            self.UI_STATUS = 2
     
+            self.WDG_background.set(maliang.PhotoImage(self.IMG_bg_blured1))
             self.WDG_background.set(maliang.PhotoImage(self.IMG_bg))
 
             self.WDG_title_time_characters = []
@@ -142,6 +174,15 @@ class Application():
             for i, widget in enumerate(self.WDG_title_time_shadow):
                 widget.style.set(fg=('#9F9F9F'))
 
+            if not self.IS_FIRSTSET:
+                self.WDG_passwdbox.destroy()
+                maliang.animation.MoveWidget(self.WDG_loginContainer, offset=(0, self.UI_HEIGHT // 3), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
+                maliang.animation.MoveWidget(self.WDG_passwdMask, offset=(0, self.UI_HEIGHT // 1.5), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
+            else:
+                self.IS_FIRSTSET = False
+
+            self.UI_STATUS = 0
+
         else:
             pass
 
@@ -158,12 +199,18 @@ class Application():
         self.UI_THEME     = args.UI_THEME 
         self.UI_ANIMATIME = args.UI_ANIMATIME
         self.UI_LOCALE    = args.UI_LOCALE
+
+        self.IS_FIRSTSET  = True
         
         self.IMG_bg_DisplayManager = args.IMG_bg_DisplayManager
         self.IMG_icon_logo = args.IMG_icon_logo
+        self.IMG_icon_user = args.IMG_icon_user
+        self.IMG_icon_login  = args.IMG_icon_login
 
         self.IMG_original_bg = Image.open(self.IMG_bg_DisplayManager)
         self.IMG_icon_logo   = Image.open(self.IMG_icon_logo)
+        self.IMG_icon_user   = Image.open(self.IMG_icon_user)
+        self.IMG_icon_login  = Image.open(self.IMG_icon_login)
         
         self.createWindow()
         self.loadWidget()
@@ -185,7 +232,8 @@ class Application():
             self.C_SCREENSIZE = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
         
         self.IMG_bg = self.getProportionalImage(img=self.IMG_original_bg, size=self.C_SCREENSIZE)
-        self.IMG_bg_blured = self.makeImageBlur(img=self.IMG_bg)
+        self.IMG_bg_blured1 = self.makeImageBlur(img=self.IMG_bg, radius=5)
+        self.IMG_bg_blured2 = self.makeImageBlur(img=self.IMG_bg, radius=10)
 
         maliang.theme.manager.set_color_mode(self.UI_THEME)
         
@@ -244,9 +292,18 @@ class Application():
         self.UI_STATUS = 1
         self.setStatus()
 
-        self.testButton = maliang.Button(self.cv, position=(10, 60), size=(50, 50), command=self.setStatus)
+        # self.testButton = maliang.Button(self.cv, position=(10, 60), size=(50, 50), command=self.setStatus)
 
         maliang.animation.MoveWidget(self.WDG_finder, offset=(0, 0 - self.getScaled(50)), duration=0, controller=maliang.animation.smooth, fps=self.UI_FPS).start()
         maliang.animation.MoveWidget(self.WDG_finder, offset=(0, self.getScaled(50)), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start(delay=self.UI_ANIMATIME // 2)
 
-    
+        self.WDG_loginContainer = maliang.Label(self.cv, position=(self.UI_WIDTH // 2 - self.getScaled(200), self.UI_HEIGHT // 1.75), size=(self.getScaled(400), self.getScaled(400)))
+        self.WDG_loginContainer.style.set(fg=('', ''), bg=('', ''), ol=('', ''))
+
+        self.IMG_avatar = self.makeRadiusImage(self.IMG_icon_user, radius=self.IMG_icon_user.size[0], alpha=0.9).resize((self.getScaled(150), self.getScaled(150)), 1)
+        self.WDG_avatar = maliang.IconButton(self.WDG_loginContainer, size=(self.getScaled(150), self.getScaled(150)), position=(self.getScaled(400) // 2, self.getScaled(400) // 2.75), image=maliang.PhotoImage(self.IMG_avatar), anchor='center', command=self.setStatus)
+        self.WDG_avatar.style.set(bg=('', '', ''), ol=('', '', ''))
+
+        self.loginUser_shadow   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2 + self.getScaled(1), self.getScaled(400 / 1.55) + self.getScaled(1)), text='用户', family='源流黑体 CJK', fontsize=self.getScaled(28), anchor='center', weight='bold')
+        self.loginUser   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2,  self.getScaled(400 / 1.55)), text='用户', family='源流黑体 CJK', fontsize=self.getScaled(28), anchor='center', weight='bold')
+        self.loginUser_shadow.style.set(fg=('#666666'))

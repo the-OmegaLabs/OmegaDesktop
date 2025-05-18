@@ -14,11 +14,14 @@ class Application():
         self.UI_HEIGHT    = 900    
         self.UI_THEME     = 'dark' 
         self.UI_LOCALE    = 'zh'    
-        self.UI_ANIMATIME = 700
+        self.UI_ANIMATIME = 500
 
         # background paths
         self.IMG_bg_DisplayManager = './Resources/bg/1.png' 
+
         self.IMG_icon_logo         = './Resources/icons/main.png' 
+        self.IMG_icon_user         = './Resources/icons/user.png'
+        self.IMG_icon_login        = './Resources/icons/login.png'
 
         self.DisplayManager = Components.DisplayManager.Application(self)
 
