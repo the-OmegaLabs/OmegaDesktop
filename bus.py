@@ -1,6 +1,11 @@
+import os
+import platform
+import sys
+import threading
+import Components.Desktop
 import Frameworks.Logger as Logger
 import Components.DisplayManager
-
+import playsound
 
 class Application():
     def __init__(self):
@@ -15,22 +20,59 @@ class Application():
         self.UI_THEME     = 'dark' 
         self.UI_LOCALE    = 'zh'    
         self.UI_ANIMATIME = 500
-        self.SET_USER     = 'stevesuk'
+        self.SET_USER     = 'root'
+
+        if self.IS_LOWGPU:
+            self.UI_ANIMATIME = 0
 
         # background paths
         self.IMG_bg_DisplayManager = './Resources/bg/1.png' 
+        self.IMG_bg_Desktop        = './Resources/bg/1.png' 
 
         self.IMG_icon_logo         = './Resources/icons/main.png' 
         self.IMG_icon_user         = './Resources/icons/user.png'
         self.IMG_icon_login        = './Resources/icons/login.png'
+        
+        while True:        
+            # self.DisplayManager = Components.DisplayManager.Application(self)
+            # self.RET_display_manager = self.DisplayManager.status
+            self.RET_display_manager = True # bypass login
 
-        self.DisplayManager = Components.DisplayManager.Application(self)
+            Logger.output(f'DisplayManager Status: {self.RET_display_manager}')
+            
+            if self.RET_display_manager:
+                self.playsound('Resources/sound/desktop-login.wav')
+                Components.Desktop.Application(self)    
 
-        self.RET_display_manager = self.DisplayManager.status
+            max_key_len = max(len(key) for key in self.__dict__)  
+            for key, value in self.__dict__.items():
+                Logger.output(f'{key:<{max_key_len}}  {str(value):<30} <type \'{type(value).__name__}\'>', type=Logger.Type.DEBUG)
 
-        max_key_len = max(len(key) for key in self.__dict__)  
-        for key, value in self.__dict__.items():
-            Logger.output(f'{key:<{max_key_len}}  {str(value):<30} <type \'{type(value).__name__}\'>')
+            if self.IS_DEVMODE:
+                break
 
+    def playsound(self, path):
+        threading.Thread(target=playsound.playsound, args=[path], daemon=True).start()
+
+    def shutdown(self):
+        Logger.output('Shutting down...')
+        if not self.IS_DEVMODE and platform.system() == 'Linux':
+            os.system('systemctl poweroff')
+        else:
+            sys.exit()
+
+    def reboot(self):
+        Logger.output('Rebooting...')
+        if not self.IS_DEVMODE and platform.system() == 'Linux':
+            os.system('systemctl reboot')
+        else:
+            sys.exit()
+
+    def firmware_boot(self):
+        Logger.output('Rebooting into firmware...')
+        if not self.IS_DEVMODE and platform.system() == 'Linux':
+            os.system('systemctl reboot --firmware-setup')
+        else:
+            sys.exit()
 
 bus = Application()

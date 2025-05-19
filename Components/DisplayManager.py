@@ -4,6 +4,7 @@ from PIL import (
     ImageDraw, 
     ImageOps
 )
+from screeninfo import get_monitors
 
 import Frameworks.Logger as Logger
 import maliang
@@ -14,12 +15,6 @@ import maliang.animation
 import pam
 import threading
 import platform
-
-# already ported with ^
-
-import os
-import maliang.toolbox
-import math
 
 class Application():
     def getScaled(self, number) -> int:
@@ -109,6 +104,7 @@ class Application():
                 self.setStatus()
 
         def failed():
+            self.bus.playsound('./Resources/sound/auth_fail.mp3')
             Logger.output(f'Authentication failed')
             self.root.after(100, lambda: (self.WDG_auth_spinner.destroy()))
             self.cv.after(0, lambda: self.WDG_passwdMask.set(maliang.PhotoImage(self.IMG_passwdMask_error)))
@@ -117,12 +113,11 @@ class Application():
 
         def success():
             Logger.output(f'Authentication complete')
-            self.root.after(500, self.WDG_auth_spinner.destroy())
-            self.root.after(1000, self.root.destroy)
+            self.root.after(100, self.WDG_auth_spinner.destroy())
+            self.root.after(500, self.root.destroy)
             self.status = True
 
         def check():
-            Logger.output(f'Authenticating {self.loginUser}...')
             self.WDG_loginButton.destroy()
             self.WDG_passwdbox.disable(True)
             self.WDG_passwdbox.master.focus('')
@@ -130,16 +125,16 @@ class Application():
         
             if platform.system() == 'Linux':
                 authenticator = pam.pam()
+                Logger.output(f'Authenticating {pam.PamAuthenticator}...')
 
                 if password and authenticator.authenticate(username=self.SET_USER, password=password):
-                    success()
+                    maliang.animation.MoveWidget(self.WDG_finder, end=success, offset=(0, 0 - self.getScaled(50)), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
                 else:
                     failed()
             else:
+                Logger.output(f'Bypass authenticating because host os is not Linux.')
                 if password:
-                    animation = maliang.animation.MoveWidget(self.WDG_finder, offset=(0, 0 - self.getScaled(50)), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS)
-                    threading.Thread(target=animation.start, daemon=True).start()
-                    self.cv.after(200, success())
+                    maliang.animation.MoveWidget(self.WDG_finder, end=success, offset=(0, 0 - self.getScaled(50)), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
                 else:
                     self.cv.after(200, failed())
 
@@ -159,8 +154,7 @@ class Application():
                 i.destroy()
 
             self.WDG_title_date.destroy()
-            self.UI_STATUS = 1
-
+            
 
             self.WDG_passwdbox   = maliang.InputBox(self.WDG_loginContainer, position=(self.getScaled(400) // 2, self.getScaled(400 // 1.25)), size=(self.getScaled(250), self.getScaled(40)), anchor='center', fontsize=self.getScaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
             self.WDG_passwdbox_size = self.WDG_passwdbox.size
@@ -190,7 +184,8 @@ class Application():
             maliang.animation.MoveWidget(self.WDG_passwdMask, offset=(0, self.UI_HEIGHT // 1.5), duration=0, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
             maliang.animation.MoveWidget(self.WDG_passwdMask, offset=(0, 0 - self.UI_HEIGHT // 1.5), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start()
             
-                    
+            self.UI_STATUS = 1
+
 
         elif self.UI_STATUS == 1:
             self.UI_STATUS = 2
@@ -240,6 +235,7 @@ class Application():
 
         self.status = False
 
+        self.bus          = args
         self.IS_LOWGPU    = args.IS_LOWGPU    
         self.IS_DEVMODE   = args.IS_DEVMODE   
 
@@ -251,26 +247,34 @@ class Application():
         self.UI_ANIMATIME = args.UI_ANIMATIME
         self.UI_LOCALE    = args.UI_LOCALE
 
+        if self.IS_DEVMODE:
+            self.C_SCREENSIZE = self.UI_WIDTH, self.UI_HEIGHT
+        else:
+            self.C_MONITOR    = get_monitors()[0]
+
+            self.C_SCREENSIZE = self.C_MONITOR.width, self.C_MONITOR.height
+
         self.SET_USER     = args.SET_USER
 
         self.IS_FIRSTSET  = True
         
-        self.IMG_bg_DisplayManager = args.IMG_bg_DisplayManager
+        self.IMG_bg_DisplayManager = args.IMG_bg_DisplayManager        
+        self.IMG_original_bg = Image.open(self.IMG_bg_DisplayManager)
+        
         self.IMG_icon_logo = args.IMG_icon_logo
         self.IMG_icon_user = args.IMG_icon_user
         self.IMG_icon_login  = args.IMG_icon_login
 
-        self.IMG_original_bg = Image.open(self.IMG_bg_DisplayManager)
         self.IMG_icon_logo   = Image.open(self.IMG_icon_logo)
         self.IMG_icon_user   = Image.open(self.IMG_icon_user)
         self.IMG_icon_login  = Image.open(self.IMG_icon_login)
-        
+
         self.createWindow()
         self.loadWidget()
 
         max_key_len = max(len(key) for key in self.__dict__)  
         for key, value in self.__dict__.items():
-            Logger.output(f'{key:<{max_key_len}}  {str(value):<50} <class \'{type(value).__name__}\'>')
+            Logger.output(f'{key:<{max_key_len}}  {str(value):<30} <type \'{type(value).__name__}\'>', type=Logger.Type.DEBUG)
 
         self.root.mainloop()
 
@@ -279,14 +283,18 @@ class Application():
 
         self.root = maliang.Tk()
         
-        if self.IS_DEVMODE:
-            self.C_SCREENSIZE = self.UI_WIDTH, self.UI_HEIGHT
-        else:
-            self.C_SCREENSIZE = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
-        
-        self.IMG_bg = self.getProportionalImage(img=self.IMG_original_bg, size=self.C_SCREENSIZE)
-        self.IMG_bg_blured1 = self.makeImageBlur(img=self.IMG_bg, radius=5)
-        self.IMG_bg_blured2 = self.makeImageBlur(img=self.IMG_bg, radius=10)
+        def adjustResolution():
+            self.C_MONITOR = get_monitors()[0]
+            if self.C_SCREENSIZE != (self.C_MONITOR.width, self.C_MONITOR.height):
+                Logger.output(f"Resolution changed: {self.C_SCREENSIZE} -> {self.C_MONITOR.width, self.C_MONITOR.height}")
+                self.C_SCREENSIZE = (self.C_MONITOR.width, self.C_MONITOR.height)
+                self.root.geometry(size=self.C_SCREENSIZE)
+                self.cv.destroy()
+                self.cv = maliang.Canvas(self.root, auto_zoom=False)
+                self.cv.place(width=self.root.size[0], height=self.root.size[1])
+                self.loadWidget()
+
+            self.root.after(1000, adjustResolution)
 
         maliang.theme.manager.set_color_mode(self.UI_THEME)
         
@@ -301,14 +309,84 @@ class Application():
         self.root.icon(maliang.PhotoImage(Image.new('RGBA', size=(1, 1))))
         self.root.title('OmegaOS Display Manager')
 
-        maliang.theme.manager.hPyT.corner_radius.set(self.root, style="square")
-        maliang.theme.manager.hPyT.maximize_minimize_button.hide(self.root,)
-        maliang.theme.manager.hPyT.rainbow_border.start(self.root, interval=4)
+        if self.IS_DEVMODE:
+            maliang.theme.manager.hPyT.corner_radius.set(self.root, style="square")
+            maliang.theme.manager.hPyT.maximize_minimize_button.hide(self.root,)
+            maliang.theme.manager.hPyT.rainbow_border.start(self.root, interval=4)
 
         self.cv = maliang.Canvas(self.root, auto_zoom=False)
         self.cv.place(width=self.root.size[0], height=self.root.size[1])
 
+        if not self.IS_DEVMODE:
+            adjustResolution()
+
+    def dockHandler(self, i):
+        if i == 0: # shutdown
+            self.bus.shutdown()
+
+        if i == 1: # reboot
+            self.bus.reboot()
+
+        if i == 2: # reboot into firmware
+            self.bus.firmware_boot()
+        
+        if i == 3:
+            self.showAbout()
+
+    def showAbout(self):
+        def enable_drag(widget):
+            drag_data = {'x': None, 'y': None}
+
+            def on_press(event):
+                if widget.detect(event.x, event.y):
+                    drag_data['x'] = event.x
+                    drag_data['y'] = event.y
+
+            def on_drag(event):
+                if drag_data['x'] is not None and drag_data['y'] is not None:
+                    dx = event.x - drag_data['x']
+                    dy = event.y - drag_data['y']
+                    widget.move(dx, dy)
+
+                    drag_data['x'] = event.x
+                    drag_data['y'] = event.y
+
+            def on_release(event):
+                drag_data['x'] = None
+                drag_data['y'] = None
+
+            widget.bind('<Button-1>', on_press)
+            widget.bind('<B1-Motion>', on_drag)
+            widget.bind('<ButtonRelease-1>', on_release)
+
+        aboutWindow = maliang.Label(self.cv, size=(self.getScaled(270), self.getScaled(400)), position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(150), self.C_SCREENSIZE[1] // 2 - self.getScaled(200)))
+
+        maliang.Image(aboutWindow, position=(self.getScaled(134), self.getScaled(30)), anchor='n', image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(150), self.getScaled(150)), 1)))
+
+        maliang.Text(aboutWindow, text='显示管理器', 
+                        position=(aboutWindow.size[0] // 2, self.getScaled(200)), anchor='center', 
+                        family='源流黑体 CJK', fontsize=self.getScaled(20), weight='bold')
+
+        maliang.Text(aboutWindow, text='1.0.0', 
+                        position=(aboutWindow.size[0] // 2, self.getScaled(225)), anchor='center', 
+                        family='源流黑体 CJK', fontsize=self.getScaled(15)).style.set(fg='#999999')
+        
+        maliang.Text(aboutWindow, text='© 2025 Omega Labs | OmegaOS 桌面环境', 
+                        position=(aboutWindow.size[0] // 2, self.getScaled(327)), anchor='center', 
+                        family='源流黑体 CJK', fontsize=self.getScaled(11)).style.set(fg='#DDDDDD')
+        
+        closeButton = maliang.Button(aboutWindow, text='关闭', 
+                        position=(aboutWindow.size[0] // 2, self.getScaled(360)), size=(self.getScaled(70), self.getScaled(30)), 
+                        command=aboutWindow.destroy, anchor='center', family='源流黑体 CJK', fontsize=self.getScaled(15))
+
+        #closeButton.style.set(ol=('', '', ''), bg=('', '', ''))
+
+        enable_drag(aboutWindow)
+
     def loadWidget(self):
+        self.IMG_bg = self.getProportionalImage(img=self.IMG_original_bg, size=self.C_SCREENSIZE)
+        self.IMG_bg_blured1 = self.makeImageBlur(img=self.IMG_bg, radius=5)
+        self.IMG_bg_blured2 = self.makeImageBlur(img=self.IMG_bg, radius=10)
         self.WDG_background = maliang.Image(self.cv, position=(0, 0), size=self.C_SCREENSIZE, image=maliang.PhotoImage(self.IMG_bg))
         
         self.APP_finder_height = self.getScaled(45)
@@ -329,7 +407,7 @@ class Application():
         self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.getScaled(45 // 3.75)), text='显示管理器', family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_title.style.set(fg=('#FFFFFF'))
 
-        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=['关机', '重启', '进入固件设置', '关于'], position=(self.getScaled(70) + self.getScaled(5.75 * (8 + len(self.WDG_finder_title.get()))), self.getScaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w')
+        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=['关机', '重启', '进入固件设置', '关于'], position=(self.getScaled(70) + self.getScaled(5.75 * (8 + len(self.WDG_finder_title.get()))), self.getScaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
         self.WDG_finder_MenuBar.style.set(bg=('', ''), ol=('', ''))
 
         for i in self.WDG_finder_MenuBar.children:
@@ -338,8 +416,8 @@ class Application():
         self.WDG_finder_time = maliang.Text(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(50), self.getScaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_time.style.set(fg=('#FFFFFF'))
 
-        self.WDG_finder_inputMethod_shape = maliang.Image(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(150), self.getScaled(13)), image=maliang.PhotoImage(self.makeRadiusImage(self.makeMaskImage((self.getScaled(85), self.getScaled(20)), color=(255, 255, 255, 255)), radius=5, alpha=1)))
-        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(10), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(1)), text='AlphaBet', fontsize=self.getScaled(15), family='源流黑体 CJK', weight='bold')
+        self.WDG_finder_inputMethod_shape = maliang.Image(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(145), self.getScaled(13)), image=maliang.PhotoImage(self.makeRadiusImage(self.makeMaskImage((self.getScaled(85), self.getScaled(20)), color=(255, 255, 255, 255)), radius=5, alpha=1)))
+        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(11), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(1)), text='AlphaBet', fontsize=self.getScaled(15), family='源流黑体 CJK', weight='bold')
         self.WDG_finder_inputMethod_text.style.set(fg=('#000000'))
 
         self.UI_STATUS = 1
@@ -357,6 +435,6 @@ class Application():
         self.WDG_avatar = maliang.IconButton(self.WDG_loginContainer, size=(self.getScaled(150), self.getScaled(150)), position=(self.getScaled(400) // 2, self.getScaled(400) // 2.75), image=maliang.PhotoImage(self.IMG_avatar), anchor='center', command=self.setStatus)
         self.WDG_avatar.style.set(bg=('', '', ''), ol=('', '', ''))
 
-        self.loginUser_shadow   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2 + self.getScaled(1), self.getScaled(400 / 1.55) + self.getScaled(1)), text='用户', family='源流黑体 CJK', fontsize=self.getScaled(28), anchor='center', weight='bold')
-        self.loginUser   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2,  self.getScaled(400 / 1.55)), text='用户', family='源流黑体 CJK', fontsize=self.getScaled(28), anchor='center', weight='bold')
+        self.loginUser_shadow   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2 + self.getScaled(1), self.getScaled(400 / 1.55) + self.getScaled(1)), text=self.SET_USER, family='源流黑体 CJK', fontsize=self.getScaled(28), anchor='center', weight='bold')
+        self.loginUser   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2,  self.getScaled(400 / 1.55)), text=self.SET_USER, family='源流黑体 CJK', fontsize=self.getScaled(28), anchor='center', weight='bold')
         self.loginUser_shadow.style.set(fg=('#666666'))
