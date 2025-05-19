@@ -21,6 +21,7 @@ class Application():
         self.UI_LOCALE    = 'zh'    
         self.UI_ANIMATIME = 500
         self.SET_USER     = 'root'
+        self.SET_MUTE     = True    # disable sound playing
 
         if self.IS_LOWGPU:
             self.UI_ANIMATIME = 0
@@ -52,7 +53,8 @@ class Application():
                 break
 
     def playsound(self, path):
-        threading.Thread(target=playsound.playsound, args=[path], daemon=True).start()
+        if not self.SET_MUTE:
+            threading.Thread(target=playsound.playsound, args=[path], daemon=True).start()
 
     def shutdown(self):
         Logger.output('Shutting down...')

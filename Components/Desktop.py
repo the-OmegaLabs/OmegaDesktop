@@ -133,6 +133,7 @@ class Application():
         self.IMG_bg = args.IMG_bg_Desktop
         self.IMG_original_bg = Image.open(self.IMG_bg)
         self.APP_FINDER_MENU = []
+        self.APP_SUBBAR_ACTIVE = -1
 
 
         self.createWindow()
@@ -239,27 +240,64 @@ class Application():
         if not self.IS_DEVMODE:
             adjustResolution()
 
-    def dockHandler(self, i):
+    def MenuHandler(self, i):
+        def subBarHandler(i):
+            self.WDG_SubBar.destroy()
+            self.WDG_SubBar_bg.destroy()
+            self.APP_SUBBAR_ACTIVE = -1 # original subbar deleted so just set status to first click
+
+        if self.APP_SUBBAR_ACTIVE == -1: # first click
+            self.APP_SUBBAR_ACTIVE = i
+        
+        elif self.APP_SUBBAR_ACTIVE == i: # same click (close menu)
+            self.WDG_SubBar.destroy()
+            self.WDG_SubBar_bg.destroy()
+            self.APP_SUBBAR_ACTIVE = -1 # original subbar deleted so just set status to first click
+            return
+
+        elif self.APP_SUBBAR_ACTIVE != i: # another button
+            self.WDG_SubBar.destroy()
+            self.WDG_SubBar_bg.destroy()
+            self.APP_SUBBAR_ACTIVE = i
+
+        
         menu = []
         if i == 0:
             menu = [
                 '关于本机',
-                '关于桌面环境',
                 '系统偏好设置...',
                 'Plusto App Store...',
-                '进程管理器...',
-                '休眠',
-                '重新启动...',
+                '进程监视器...',
+                '重新引导...',
                 '关机...',
-                '锁定屏幕',
-                f'退出登录 \"{self.SET_USER}\"...              '
-            ]
-        elif i == 4:
-            menu = [
-                '关于此桌面环境',
+                f'结束会话 \"{self.SET_USER}\"...              '
             ]
 
-        position = (self.WDG_finder_MenuBar.children[i].position[0] + self.getScaled(2), self.APP_finder_height)
+        subBarPosition = (self.WDG_finder_MenuBar.children[i].position[0] + self.getScaled(2), self.APP_finder_height)
+
+        self.WDG_SubBar = maliang.SegmentedButton(
+            self.WDG_finder, text=menu, position=subBarPosition,
+            family='源流黑体 CJK', fontsize=self.getScaled(13), layout='vertical'
+        )
+
+        subBarSize = self.WDG_SubBar.size
+        self.WDG_SubBar.destroy()
+
+        subBarBlur = self.makeImageBlur(self.IMG_bg.crop((subBarPosition[0], subBarPosition[1], subBarPosition[0] + subBarSize[0], subBarPosition[1] + subBarSize[1])))
+        subBarMask = self.makeRadiusImage(self.mergeImage(subBarBlur, self.makeMaskImage(subBarSize)), alpha=1, radius=5)
+        self.WDG_SubBar_bg = maliang.Image(self.cv, position=subBarPosition, size=subBarSize, image=maliang.PhotoImage(subBarMask))
+
+
+        self.WDG_SubBar = maliang.SegmentedButton(
+            self.WDG_finder, text=menu, position=subBarPosition,
+            family='源流黑体 CJK', fontsize=self.getScaled(13), command=subBarHandler, layout='vertical'
+        )
+
+        self.WDG_SubBar.style.set(bg=('', ''), ol=('', ''))
+        for i in self.WDG_SubBar.children:
+            i.style.set(fg=('#DDDDDD', '#EEEEEE', '#FFFFFF', '#DDDDDD', '#FFFFFF', '#FFFFFF'), 
+                        bg=('', '', '', '', '', ''), 
+                        ol=('', '', '', '', '', ''))
 
     def showAbout(self):
         def enable_drag(widget):
@@ -325,7 +363,7 @@ class Application():
         self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.getScaled(45 // 3.75)), text=self.SET_USER, family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_title.style.set(fg=('#FFFFFF'))
 
-        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=[], position=(self.WDG_finder_title.position[0] + self.getScaled(15) + self.getScaled(len(self.WDG_finder_title.get()) * 4), self.getScaled(45 // 2) + self.getScaled(1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
+        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=['文件', '编辑', '前往', '窗口', '帮助'], position=(self.WDG_finder_title.position[0] + self.getScaled(15) + self.getScaled(len(self.WDG_finder_title.get()) * 4), self.getScaled(45 // 2) + self.getScaled(1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.MenuHandler)
         self.WDG_finder_MenuBar.style.set(bg=('', ''), ol=('', ''))
 
         for i in self.WDG_finder_MenuBar.children:
