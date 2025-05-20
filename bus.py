@@ -11,7 +11,7 @@ class Application():
     def __init__(self):
         Logger.output('Loading Omega Desktop...')
 
-        self.IS_DEVMODE   = True    # fullscreen
+        self.IS_DEVMODE   = False    # fullscreen
         self.IS_LOWGPU    = False   # disable animation
         self.UI_SCALE     = 1.3   # scale of UI
         self.UI_FPS       = 200     # animation fps
