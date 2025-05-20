@@ -11,9 +11,9 @@ class Application():
     def __init__(self):
         Logger.output('Loading Omega Desktop...')
 
-        self.IS_DEVMODE   = True    # fullscreen
+        self.IS_DEVMODE   = False    # fullscreen
         self.IS_LOWGPU    = False   # disable animation
-        self.UI_SCALE     = 1.25   # scale of UI
+        self.UI_SCALE     = 1.3   # scale of UI
         self.UI_FPS       = 200     # animation fps
         self.UI_WIDTH     = 1600    # screen size (useless when devmode disabling)
         self.UI_HEIGHT    = 900    
@@ -21,23 +21,23 @@ class Application():
         self.UI_LOCALE    = 'zh'    
         self.UI_ANIMATIME = 500
         self.SET_USER     = 'root'
-        self.SET_MUTE     = True    # disable sound playing
+        self.SET_MUTE     = False    # disable sound playing
 
         if self.IS_LOWGPU:
             self.UI_ANIMATIME = 0
 
         # background paths
-        self.IMG_bg_DisplayManager = './Resources/bg/1.png' 
-        self.IMG_bg_Desktop        = './Resources/bg/1.png' 
+        self.IMG_bg_DisplayManager = './Resources/bg/7.jpg' 
+        self.IMG_bg_Desktop        = './Resources/bg/7.jpg' 
 
         self.IMG_icon_logo         = './Resources/icons/main.png' 
         self.IMG_icon_user         = './Resources/icons/user.png'
         self.IMG_icon_login        = './Resources/icons/login.png'
         
         while True:        
-            # self.DisplayManager = Components.DisplayManager.Application(self)
-            # self.RET_display_manager = self.DisplayManager.status
-            self.RET_display_manager = True # bypass login
+            self.RET_display_manager = Components.DisplayManager.Application(self).status
+
+            #self.RET_display_manager = True # bypass login
 
             Logger.output(f'DisplayManager Status: {self.RET_display_manager}')
             

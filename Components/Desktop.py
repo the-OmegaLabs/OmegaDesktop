@@ -1,3 +1,4 @@
+import os
 from PIL import (
     Image,
     ImageFilter,
@@ -242,18 +243,16 @@ class Application():
 
     def MenuHandler(self, i):
         def subBarHandler(i):
+            if self.APP_SUBBAR_ACTIVE == 0 and i == 6: # leave usernaem session
+                self.root.destroy()
+
             self.WDG_SubBar.destroy()
             self.WDG_SubBar_bg.destroy()
             self.APP_SUBBAR_ACTIVE = -1 # original subbar deleted so just set status to first click
 
+        
         if self.APP_SUBBAR_ACTIVE == -1: # first click
             self.APP_SUBBAR_ACTIVE = i
-        
-        elif self.APP_SUBBAR_ACTIVE == i: # same click (close menu)
-            self.WDG_SubBar.destroy()
-            self.WDG_SubBar_bg.destroy()
-            self.APP_SUBBAR_ACTIVE = -1 # original subbar deleted so just set status to first click
-            return
 
         elif self.APP_SUBBAR_ACTIVE != i: # another button
             self.WDG_SubBar.destroy()
@@ -265,13 +264,52 @@ class Application():
         if i == 0:
             menu = [
                 '关于本机',
-                '系统偏好设置...',
-                'Plusto App Store...',
-                '进程监视器...',
-                '重新引导...',
+                '系统设置...',
+                'Plusto 应用商店...',
+                '打开进程监视器...',
+                '重新启动...',
                 '关机...',
                 f'结束会话 \"{self.SET_USER}\"...              '
             ]
+
+        if i == 1:
+            menu = [
+                '撤销',
+                '重做',
+                '剪切',
+                '复制',
+                '粘贴',
+                '剪贴板工具...      '
+            ]
+
+        if i == 2:
+            menu = [
+                '文稿',
+                '下载',
+                '桌面',
+                '网络',
+                f'{self.SET_USER} 的个人文件夹     ',
+            ]
+
+        if i == 3:
+            menu = [
+                '最小化当前窗口   ',
+                '合并所有窗口',
+                '前置全部窗口',
+                '隐藏全部窗口'
+            ]
+
+        if i == 4:
+            menu = [
+                '了解 OmegaOS 2.0 Fuji 的新功能...',
+                '欢迎使用 OmegaOS...',
+                '搜索帮助主题...',
+                'Omega Desktop 帮助',
+                '反馈问题或建议...',
+                '检查更新...',
+                '关于此 OmegaOS'
+            ]
+
 
         subBarPosition = (self.WDG_finder_MenuBar.children[i].position[0] + self.getScaled(2), self.APP_finder_height)
 
@@ -289,7 +327,7 @@ class Application():
 
 
         self.WDG_SubBar = maliang.SegmentedButton(
-            self.WDG_finder, text=menu, position=subBarPosition,
+            self.cv, text=menu, position=subBarPosition,
             family='源流黑体 CJK', fontsize=self.getScaled(13), command=subBarHandler, layout='vertical'
         )
 
@@ -298,6 +336,16 @@ class Application():
             i.style.set(fg=('#DDDDDD', '#EEEEEE', '#FFFFFF', '#DDDDDD', '#FFFFFF', '#FFFFFF'), 
                         bg=('', '', '', '', '', ''), 
                         ol=('', '', '', '', '', ''))
+            
+        def destroySubBar(event):
+            if self.APP_SUBBAR_ACTIVE != -1:
+                if event.x < self.WDG_SubBar.position[0] or event.x > self.WDG_SubBar.position[0] + self.WDG_SubBar.size[0] or event.y < self.WDG_SubBar.position[1] or event.y > self.WDG_SubBar.position[1] + self.WDG_SubBar.size[1]:
+                    self.WDG_SubBar_bg.destroy()
+                    self.WDG_SubBar.destroy()
+
+                    self.APP_SUBBAR_ACTIVE = -1 # original subbar deleted so just set status to first click
+
+        self.root.bind("<Button-1>", lambda event: destroySubBar(event))
 
     def showAbout(self):
         def enable_drag(widget):
@@ -356,14 +404,34 @@ class Application():
         self.WDG_background = maliang.Image(self.cv, position=(0, 0), size=self.C_SCREENSIZE, image=maliang.PhotoImage(self.IMG_bg))
         
         self.APP_finder_height = self.getScaled(45)
+        
+        # self.WDG_finderWin = maliang.Toplevel(self.root, size=(self.C_SCREENSIZE[0], self.APP_finder_height), position=(self.root.winfo_x(), self.root.winfo_y()))
+        # self.WDG_finderWin.topmost(True)
+
+        # self.WDG_finder = maliang.Canvas(self.WDG_finderWin)
+        # self.WDG_finder.place(x=0, y=0, width=self.IMG_bg.size[0], height=self.IMG_bg.size[1])
 
         self.WDG_finder = maliang.Image(self.cv, position=(0, 0), image=maliang.PhotoImage(self.makeImageBlur(self.mergeImage(self.IMG_bg.crop((0, 0, self.C_SCREENSIZE[0], self.APP_finder_height)), self.makeMaskImage(size=(self.C_SCREENSIZE[0], self.APP_finder_height))))))
 
-        self.WDG_finder_icon = maliang.Image(self.WDG_finder, position=(self.getScaled(30), self.getScaled(45 // 1.9)), image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(30), self.getScaled(30)), 1)), anchor='center')
-        self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.getScaled(45 // 3.75)), text=self.SET_USER, family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
+        self.WDG_finder_icon = maliang.Image(self.WDG_finder, position=(self.getScaled(30), self.APP_finder_height // 1.9), image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(30), self.getScaled(30)), 1)), anchor='center')
+        self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.APP_finder_height // 3.75), text=self.SET_USER, family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_title.style.set(fg=('#FFFFFF'))
 
-        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=['文件', '编辑', '前往', '窗口', '帮助'], position=(self.WDG_finder_title.position[0] + self.getScaled(15) + self.getScaled(len(self.WDG_finder_title.get()) * 4), self.getScaled(45 // 2) + self.getScaled(1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.MenuHandler)
+        self.WDG_finder_MenuBar = maliang.SegmentedButton(
+            self.WDG_finder,
+            text=['文件', '编辑', '前往', '窗口', '帮助'],
+            position=(
+                self.WDG_finder_title.position[0] +
+                self.getScaled(15) +
+                self.getScaled(len(self.WDG_finder_title.get()) * 4) +
+                self.getScaled(1),
+                self.APP_finder_height // 2
+            ),
+            family='源流黑体 CJK',
+            fontsize=self.getScaled(15),
+            anchor='w',
+            command=self.MenuHandler
+        )
         self.WDG_finder_MenuBar.style.set(bg=('', ''), ol=('', ''))
 
         for i in self.WDG_finder_MenuBar.children:
@@ -381,6 +449,7 @@ class Application():
         maliang.animation.MoveWidget(self.WDG_finder, offset=(0, 0 - self.getScaled(50)), duration=0, controller=maliang.animation.smooth, fps=self.UI_FPS).start()
         maliang.animation.MoveWidget(self.WDG_finder, offset=(0, self.getScaled(50)), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start(delay=self.UI_ANIMATIME // 2)
 
+
         # def autoUpdateMenubar():
         #     try:
         #         title, temp = self.getActiveApplicationMenu()
@@ -391,7 +460,7 @@ class Application():
         #             self.APP_FINDER_MENU = temp
                     
         #             self.WDG_finder_title.set(title)
-        #             self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=self.APP_FINDER_MENU, position=(self.WDG_finder_title.position[0] + len(self.WDG_finder_title.get()) * self.getScaled(10) + self.getScaled(5), self.getScaled(45 // 2) + self.getScaled(1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
+        #             self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=self.APP_FINDER_MENU, position=(self.WDG_finder_title.position[0] + len(self.WDG_finder_title.get()) * self.getScaled(10) + self.getScaled(5), self.APP_finder_height // 2) + self.getScaled(1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
         #             self.WDG_finder_MenuBar.style.set(bg=('', ''), ol=('', ''))
         #             for i in self.WDG_finder_MenuBar.children:
         #                 i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))

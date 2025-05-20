@@ -403,11 +403,11 @@ class Application():
                                         )
                         )
 
-        self.WDG_finder_icon = maliang.Image(self.WDG_finder, position=(self.getScaled(30), self.getScaled(45 // 1.9)), image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(30), self.getScaled(30)), 1)), anchor='center')
-        self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.getScaled(45 // 3.75)), text='显示管理器', family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
+        self.WDG_finder_icon = maliang.Image(self.WDG_finder, position=(self.getScaled(30), self.APP_finder_height // 1.9), image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(30), self.getScaled(30)), 1)), anchor='center')
+        self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.APP_finder_height // 3.75), text='显示管理器', family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_title.style.set(fg=('#FFFFFF'))
 
-        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=['关机', '重启', '进入固件设置', '关于'], position=(self.getScaled(70) + self.getScaled(5.75 * (8 + len(self.WDG_finder_title.get()))), self.getScaled(45 // 2 + 1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
+        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=['关机', '重启', '进入固件设置', '关于'], position=(self.getScaled(70) + self.getScaled(5.75 * (8 + len(self.WDG_finder_title.get()))), self.APP_finder_height // 2 + 1), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
         self.WDG_finder_MenuBar.style.set(bg=('', ''), ol=('', ''))
 
         for i in self.WDG_finder_MenuBar.children:
