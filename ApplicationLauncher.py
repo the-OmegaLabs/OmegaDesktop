@@ -5,7 +5,7 @@ import playsound
 ###############
 # Application #
 ###############
-import Application.FileManager as App
+import Application.calculator as App
 ###############
 
 class Application():

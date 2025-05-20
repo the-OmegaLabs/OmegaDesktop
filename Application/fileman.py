@@ -173,4 +173,4 @@ class Application():
     def loadWidget(self):
         for i, item in enumerate(os.listdir('C:\Windows')):
             print(f'[{i+1} / {len(os.listdir('C:\Windows'))}]')
-            maliang.Text(self.cv, position=(self.getScaled(18), i * self.getScaled(18)), text=item, family='源流黑体 CJK', weight='bold', fontsize=self.getScaled(15))
+            maliang.Text(self.cv, position=(self.getScaled(18), i * self.getScaled(18)), text=item, family=self.UI_FAMILY, weight='bold', fontsize=self.getScaled(15))

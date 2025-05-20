@@ -111,6 +111,7 @@ class Application():
         self.UI_THEME     = args.UI_THEME 
         self.UI_ANIMATIME = args.UI_ANIMATIME
         self.UI_LOCALE    = args.UI_LOCALE
+        self.UI_FAMILY    = args.UI_FAMILY
 
         if self.IS_DEVMODE:
             self.C_SCREENSIZE = self.UI_WIDTH, self.UI_HEIGHT
@@ -241,6 +242,17 @@ class Application():
         if not self.IS_DEVMODE:
             adjustResolution()
 
+        def keyPress(event):
+            print(event.keysym)
+            self.bus.playsound('./Resources/sound/tink.mp3')
+
+        def keyRelease(event):
+            pass
+
+        self.root.bind("<KeyPress>", keyPress)
+        self.root.bind("<KeyRelease>", keyRelease)
+
+
     def MenuHandler(self, i):
         def subBarHandler(i):
             if self.APP_SUBBAR_ACTIVE == 0 and i == 6: # leave usernaem session
@@ -315,7 +327,7 @@ class Application():
 
         self.WDG_SubBar = maliang.SegmentedButton(
             self.WDG_finder, text=menu, position=subBarPosition,
-            family='源流黑体 CJK', fontsize=self.getScaled(13), layout='vertical'
+            family=self.UI_FAMILY, fontsize=self.getScaled(13), layout='vertical'
         )
 
         subBarSize = self.WDG_SubBar.size
@@ -328,7 +340,7 @@ class Application():
 
         self.WDG_SubBar = maliang.SegmentedButton(
             self.cv, text=menu, position=subBarPosition,
-            family='源流黑体 CJK', fontsize=self.getScaled(13), command=subBarHandler, layout='vertical'
+            family=self.UI_FAMILY, fontsize=self.getScaled(13), command=subBarHandler, layout='vertical'
         )
 
         self.WDG_SubBar.style.set(bg=('', ''), ol=('', ''))
@@ -345,6 +357,7 @@ class Application():
 
                     self.APP_SUBBAR_ACTIVE = -1 # original subbar deleted so just set status to first click
 
+        
         self.root.bind("<Button-1>", lambda event: destroySubBar(event))
 
     def showAbout(self):
@@ -379,19 +392,19 @@ class Application():
 
         maliang.Text(aboutWindow, text='显示管理器', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(200)), anchor='center', 
-                        family='源流黑体 CJK', fontsize=self.getScaled(20), weight='bold')
+                        family=self.UI_FAMILY, fontsize=self.getScaled(20), weight='bold')
 
         maliang.Text(aboutWindow, text='1.0.0', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(225)), anchor='center', 
-                        family='源流黑体 CJK', fontsize=self.getScaled(15)).style.set(fg='#999999')
+                        family=self.UI_FAMILY, fontsize=self.getScaled(15)).style.set(fg='#999999')
         
         maliang.Text(aboutWindow, text='© 2025 Omega Labs | OmegaOS 桌面环境', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(327)), anchor='center', 
-                        family='源流黑体 CJK', fontsize=self.getScaled(11)).style.set(fg='#DDDDDD')
+                        family=self.UI_FAMILY, fontsize=self.getScaled(11)).style.set(fg='#DDDDDD')
         
         closeButton = maliang.Button(aboutWindow, text='关闭', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(360)), size=(self.getScaled(70), self.getScaled(30)), 
-                        command=aboutWindow.destroy, anchor='center', family='源流黑体 CJK', fontsize=self.getScaled(15))
+                        command=aboutWindow.destroy, anchor='center', family=self.UI_FAMILY, fontsize=self.getScaled(15))
 
         #closeButton.style.set(ol=('', '', ''), bg=('', '', ''))
 
@@ -414,7 +427,7 @@ class Application():
         self.WDG_finder = maliang.Image(self.cv, position=(0, 0 - self.getScaled(50)), image=maliang.PhotoImage(self.makeImageBlur(self.mergeImage(self.IMG_bg.crop((0, 0, self.C_SCREENSIZE[0], self.APP_finder_height)), self.makeMaskImage(size=(self.C_SCREENSIZE[0], self.APP_finder_height))))))
 
         self.WDG_finder_icon = maliang.Image(self.WDG_finder, position=(self.getScaled(30), self.APP_finder_height // 1.9), image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(30), self.getScaled(30)), 1)), anchor='center')
-        self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.APP_finder_height // 3.75), text=self.SET_USER, family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
+        self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.APP_finder_height // 3.75), text=self.SET_USER, family=self.UI_FAMILY, fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_title.style.set(fg=('#FFFFFF'))
 
         self.WDG_finder_MenuBar = maliang.SegmentedButton(
@@ -427,7 +440,7 @@ class Application():
                 self.getScaled(1),
                 self.APP_finder_height // 2
             ),
-            family='源流黑体 CJK',
+            family=self.UI_FAMILY,
             fontsize=self.getScaled(15),
             anchor='w',
             command=self.MenuHandler
@@ -437,11 +450,11 @@ class Application():
         for i in self.WDG_finder_MenuBar.children:
             i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
 
-        self.WDG_finder_time = maliang.Text(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(50), self.getScaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
+        self.WDG_finder_time = maliang.Text(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(50), self.getScaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family=self.UI_FAMILY, fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_time.style.set(fg=('#FFFFFF'))
 
         self.WDG_finder_inputMethod_shape = maliang.Image(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(145), self.getScaled(13)), image=maliang.PhotoImage(self.makeRadiusImage(self.makeMaskImage((self.getScaled(85), self.getScaled(20)), color=(255, 255, 255, 255)), radius=5, alpha=1)))
-        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(11), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(2)), text='AlphaBet', fontsize=self.getScaled(15), family='源流黑体 CJK', weight='bold')
+        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(11), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(2)), text='AlphaBet', fontsize=self.getScaled(15), family=self.UI_FAMILY, weight='bold')
         self.WDG_finder_inputMethod_text.style.set(fg=('#000000'))
 
         # self.testButton = maliang.Button(self.cv, position=(10, 60), size=(50, 50), command=self.setStatus)
@@ -459,7 +472,7 @@ class Application():
         #             self.APP_FINDER_MENU = temp
                     
         #             self.WDG_finder_title.set(title)
-        #             self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=self.APP_FINDER_MENU, position=(self.WDG_finder_title.position[0] + len(self.WDG_finder_title.get()) * self.getScaled(10) + self.getScaled(5), self.APP_finder_height // 2) + self.getScaled(1)), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
+        #             self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=self.APP_FINDER_MENU, position=(self.WDG_finder_title.position[0] + len(self.WDG_finder_title.get()) * self.getScaled(10) + self.getScaled(5), self.APP_finder_height // 2) + self.getScaled(1)), family=self.UI_FAMILY, fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
         #             self.WDG_finder_MenuBar.style.set(bg=('', ''), ol=('', ''))
         #             for i in self.WDG_finder_MenuBar.children:
         #                 i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))

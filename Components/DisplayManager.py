@@ -156,7 +156,7 @@ class Application():
             self.WDG_title_date.destroy()
             
 
-            self.WDG_passwdbox   = maliang.InputBox(self.WDG_loginContainer, position=(self.getScaled(400) // 2, self.getScaled(400 // 1.25)), size=(self.getScaled(250), self.getScaled(40)), anchor='center', fontsize=self.getScaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
+            self.WDG_passwdbox   = maliang.InputBox(self.WDG_loginContainer, position=(self.getScaled(400) // 2, self.getScaled(400 // 1.25)), size=(self.getScaled(250), self.getScaled(40)), anchor='center', fontsize=self.getScaled(15), family=self.UI_FAMILY, placeholder='密码', show='*')
             self.WDG_passwdbox_size = self.WDG_passwdbox.size
             self.WDG_passwdbox_position = self.WDG_passwdbox.position
             self.WDG_passwdbox.destroy()
@@ -172,7 +172,7 @@ class Application():
             self.IMG_passwdMask  = self.makeRadiusImage(self.mergeImage(self.makeImageBlur(passwdImg), self.makeMaskImage(passwdImg.size)), radius=5, alpha=0.9)
             self.IMG_passwdMask_error  = self.makeRadiusImage(self.mergeImage(self.makeImageBlur(passwdImg), self.makeMaskImage(passwdImg.size, color=(96, 0, 0, 96))), radius=5, alpha=0.9)
             self.WDG_passwdMask  = maliang.Image(self.cv, position=(x1, y1), image=maliang.PhotoImage(self.IMG_passwdMask))
-            self.WDG_passwdbox   = maliang.InputBox(self.WDG_loginContainer, position=(self.getScaled(400) // 2, self.getScaled(400 // 1.25)), size=(self.getScaled(250), self.getScaled(40)), anchor='center', fontsize=self.getScaled(15), family='源流黑体 CJK', placeholder='密码', show='*')
+            self.WDG_passwdbox   = maliang.InputBox(self.WDG_loginContainer, position=(self.getScaled(400) // 2, self.getScaled(400 // 1.25)), size=(self.getScaled(250), self.getScaled(40)), anchor='center', fontsize=self.getScaled(15), family=self.UI_FAMILY, placeholder='密码', show='*')
             self.WDG_passwdbox.style.set(bg=('', '', ''), ol=('', '', ''))
             self.WDG_loginButton = maliang.IconButton(self.WDG_passwdbox, position=(self.getScaled(107), self.getScaled(0)), anchor='center', size=(self.getScaled(30), self.getScaled(30)), image=maliang.PhotoImage(self.IMG_icon_login.resize((self.getScaled(25), self.getScaled(25)), 1)), command=lambda: self.authenticate(self.WDG_passwdbox.get()))
             
@@ -199,18 +199,18 @@ class Application():
             nowTime = datetime.datetime.now()
             n1, n2, sp, n3, n4 = nowTime.strftime('%H:%M')
 
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 1.85 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n1, family='源流黑体 CJK', fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 0.8  + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n2, family='源流黑体 CJK', fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8  + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n3, family='源流黑体 CJK', fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n4, family='源流黑体 CJK', fontsize=self.getScaled(65), weight='bold', anchor='center'))    
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=sp, family='源流黑体 CJK', fontsize=self.getScaled(60), weight='bold', anchor='center'))    
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 1.85 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n1, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 0.8  + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n2, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8  + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n3, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n4, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))    
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=sp, family=self.UI_FAMILY, fontsize=self.getScaled(60), weight='bold', anchor='center'))    
             
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 1.85, self.C_SCREENSIZE[1] // 3.9), text=n1, family='源流黑体 CJK', fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n2, family='源流黑体 CJK', fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n3, family='源流黑体 CJK', fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93, self.C_SCREENSIZE[1] // 3.9), text=n4, family='源流黑体 CJK', fontsize=self.getScaled(65), weight='bold', anchor='center'))    
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 3.9), text=sp, family='源流黑体 CJK', fontsize=self.getScaled(60), weight='bold', anchor='center'))    
-            self.WDG_title_date = maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 5), anchor='center', text=self.getDate(nowTime), family='源流黑体 CJK', fontsize=self.getScaled(18), weight='bold')
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 1.85, self.C_SCREENSIZE[1] // 3.9), text=n1, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n2, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n3, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93, self.C_SCREENSIZE[1] // 3.9), text=n4, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))    
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 3.9), text=sp, family=self.UI_FAMILY, fontsize=self.getScaled(60), weight='bold', anchor='center'))    
+            self.WDG_title_date = maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 5), anchor='center', text=self.getDate(nowTime), family=self.UI_FAMILY, fontsize=self.getScaled(18), weight='bold')
 
             for i, widget in enumerate(self.WDG_title_time_characters):
                 widget.style.set(fg=('#EEEEEE'))
@@ -246,6 +246,7 @@ class Application():
         self.UI_THEME     = args.UI_THEME 
         self.UI_ANIMATIME = args.UI_ANIMATIME
         self.UI_LOCALE    = args.UI_LOCALE
+        self.UI_FAMILY    = args.UI_FAMILY
 
         if self.IS_DEVMODE:
             self.C_SCREENSIZE = self.UI_WIDTH, self.UI_HEIGHT
@@ -365,19 +366,19 @@ class Application():
 
         maliang.Text(aboutWindow, text='显示管理器', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(200)), anchor='center', 
-                        family='源流黑体 CJK', fontsize=self.getScaled(20), weight='bold')
+                        family=self.UI_FAMILY, fontsize=self.getScaled(20), weight='bold')
 
         maliang.Text(aboutWindow, text='1.0.0', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(225)), anchor='center', 
-                        family='源流黑体 CJK', fontsize=self.getScaled(15)).style.set(fg='#999999')
+                        family=self.UI_FAMILY, fontsize=self.getScaled(15)).style.set(fg='#999999')
         
         maliang.Text(aboutWindow, text='© 2025 Omega Labs | OmegaOS 桌面环境', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(327)), anchor='center', 
-                        family='源流黑体 CJK', fontsize=self.getScaled(11)).style.set(fg='#DDDDDD')
+                        family=self.UI_FAMILY, fontsize=self.getScaled(11)).style.set(fg='#DDDDDD')
         
         closeButton = maliang.Button(aboutWindow, text='关闭', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(360)), size=(self.getScaled(70), self.getScaled(30)), 
-                        command=aboutWindow.destroy, anchor='center', family='源流黑体 CJK', fontsize=self.getScaled(15))
+                        command=aboutWindow.destroy, anchor='center', family=self.UI_FAMILY, fontsize=self.getScaled(15))
 
         #closeButton.style.set(ol=('', '', ''), bg=('', '', ''))
 
@@ -404,20 +405,20 @@ class Application():
                         )
 
         self.WDG_finder_icon = maliang.Image(self.WDG_finder, position=(self.getScaled(30), self.APP_finder_height // 1.9), image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(30), self.getScaled(30)), 1)), anchor='center')
-        self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.APP_finder_height // 3.75), text='显示管理器', family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
+        self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.APP_finder_height // 3.75), text='显示管理器', family=self.UI_FAMILY, fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_title.style.set(fg=('#FFFFFF'))
 
-        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=['关机', '重启', '进入固件设置', '关于'], position=(self.getScaled(70) + self.getScaled(5.75 * (8 + len(self.WDG_finder_title.get()))), self.APP_finder_height // 2 + 1), family='源流黑体 CJK', fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
+        self.WDG_finder_MenuBar = maliang.SegmentedButton(self.WDG_finder, text=['关机', '重启', '进入固件设置', '关于'], position=(self.getScaled(70) + self.getScaled(5.75 * (8 + len(self.WDG_finder_title.get()))), self.APP_finder_height // 2 + 1), family=self.UI_FAMILY, fontsize=self.getScaled(15), anchor='w', command=self.dockHandler)
         self.WDG_finder_MenuBar.style.set(bg=('', ''), ol=('', ''))
 
         for i in self.WDG_finder_MenuBar.children:
             i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
 
-        self.WDG_finder_time = maliang.Text(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(50), self.getScaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family='源流黑体 CJK', fontsize=self.getScaled(15), weight='bold')
+        self.WDG_finder_time = maliang.Text(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(50), self.getScaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family=self.UI_FAMILY, fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_time.style.set(fg=('#FFFFFF'))
 
         self.WDG_finder_inputMethod_shape = maliang.Image(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(145), self.getScaled(13)), image=maliang.PhotoImage(self.makeRadiusImage(self.makeMaskImage((self.getScaled(85), self.getScaled(20)), color=(255, 255, 255, 255)), radius=5, alpha=1)))
-        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(11), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(2)), text='AlphaBet', fontsize=self.getScaled(15), family='源流黑体 CJK', weight='bold')
+        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(11), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(2)), text='AlphaBet', fontsize=self.getScaled(15), family=self.UI_FAMILY, weight='bold')
         self.WDG_finder_inputMethod_text.style.set(fg=('#000000'))
 
         self.UI_STATUS = 1
@@ -434,6 +435,6 @@ class Application():
         self.WDG_avatar = maliang.IconButton(self.WDG_loginContainer, size=(self.getScaled(150), self.getScaled(150)), position=(self.getScaled(400) // 2, self.getScaled(400) // 2.75), image=maliang.PhotoImage(self.IMG_avatar), anchor='center', command=self.setStatus)
         self.WDG_avatar.style.set(bg=('', '', ''), ol=('', '', ''))
 
-        self.loginUser_shadow   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2 + self.getScaled(1), self.getScaled(400 / 1.55) + self.getScaled(1)), text=self.SET_USER, family='源流黑体 CJK', fontsize=self.getScaled(28), anchor='center', weight='bold')
-        self.loginUser   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2,  self.getScaled(400 / 1.55)), text=self.SET_USER, family='源流黑体 CJK', fontsize=self.getScaled(28), anchor='center', weight='bold')
+        self.loginUser_shadow   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2 + self.getScaled(1), self.getScaled(400 / 1.55) + self.getScaled(1)), text=self.SET_USER, family=self.UI_FAMILY, fontsize=self.getScaled(28), anchor='center', weight='bold')
+        self.loginUser   = maliang.Text(self.WDG_loginContainer, position=(self.getScaled(400) // 2,  self.getScaled(400 / 1.55)), text=self.SET_USER, family=self.UI_FAMILY, fontsize=self.getScaled(28), anchor='center', weight='bold')
         self.loginUser_shadow.style.set(fg=('#666666'))

@@ -73,19 +73,19 @@ def showAbout():
 
     maliang.Text(aboutWindow, text='显示管理器', 
                     position=(scaled(151), scaled(230)), anchor='center', 
-                    family='源流黑体 CJK', fontsize=scaled(20), weight='bold')
+                    family=self.UI_FAMILY, fontsize=scaled(20), weight='bold')
 
     maliang.Text(aboutWindow, text='1.0.0', 
                     position=(scaled(151), scaled(255)), anchor='center', 
-                    family='源流黑体 CJK', fontsize=scaled(15)).style.set(fg='#999999')
+                    family=self.UI_FAMILY, fontsize=scaled(15)).style.set(fg='#999999')
     
     maliang.Text(aboutWindow, text='© 2025 Omega Labs | OmegaOS 桌面环境', 
                     position=(scaled(151), scaled(327)), anchor='center', 
-                    family='源流黑体 CJK', fontsize=scaled(11)).style.set(fg='#DDDDDD')
+                    family=self.UI_FAMILY, fontsize=scaled(11)).style.set(fg='#DDDDDD')
     
     closeButton = maliang.Button(aboutWindow, text='Close', 
                     position=(scaled(151), scaled(355)), size=(scaled(100), scaled(40)), 
-                    command=aboutWindow.destroy, anchor='center', family='源流黑体 CJK', fontsize=scaled(20))
+                    command=aboutWindow.destroy, anchor='center', family=self.UI_FAMILY, fontsize=scaled(20))
 
     closeButton.style.set(ol=('', '', ''), bg=('', '', ''))
 
@@ -193,23 +193,23 @@ def showAbout(appName, desc, version, company):
 
     maliang.Text(aboutWindow, text=appName, 
                     position=(scaled(151), scaled(230)), anchor='center', 
-                    family='源流黑体 CJK', fontsize=scaled(20), weight='bold')
+                    family=self.UI_FAMILY, fontsize=scaled(20), weight='bold')
 
     maliang.Text(aboutWindow, text=desc, 
                     position=(scaled(151), scaled(255)), anchor='center', 
-                    family='源流黑体 CJK', fontsize=scaled(15)).style.set(fg='#DDDDDD')
+                    family=self.UI_FAMILY, fontsize=scaled(15)).style.set(fg='#DDDDDD')
     
     maliang.Text(aboutWindow, text=version, 
                     position=(scaled(151), scaled(275)), anchor='center', 
-                    family='源流黑体 CJK', fontsize=scaled(10)).style.set(fg='#999999')
+                    family=self.UI_FAMILY, fontsize=scaled(10)).style.set(fg='#999999')
     
     maliang.Text(aboutWindow, text=company, 
                     position=(scaled(151), scaled(327)), anchor='center', 
-                    family='源流黑体 CJK', fontsize=scaled(11)).style.set(fg='#DDDDDD')
+                    family=self.UI_FAMILY, fontsize=scaled(11)).style.set(fg='#DDDDDD')
     
     closeButton = maliang.Button(aboutWindow, text='确定', 
                     position=(scaled(151), scaled(355)), size=(scaled(100), scaled(40)), 
-                    command=aboutWindow.destroy, anchor='center', family='源流黑体 CJK', fontsize=scaled(20))
+                    command=aboutWindow.destroy, anchor='center', family=self.UI_FAMILY, fontsize=scaled(20))
 
     closeButton.style.set(ol=('', '', ''), bg=('', '', ''))
 
@@ -266,7 +266,7 @@ def menubarHandler(i):
     
     subBar = maliang.SegmentedButton(
         finderBar, text=obj, position=position,
-        family='源流黑体 CJK', fontsize=scaled(13), command=menubarHandler, layout='vertical'
+        family=self.UI_FAMILY, fontsize=scaled(13), command=menubarHandler, layout='vertical'
     )
 
     size = subBar.size
@@ -279,7 +279,7 @@ def menubarHandler(i):
 
     subBar = maliang.SegmentedButton(
         finderBar, text=obj, position=position,
-        family='源流黑体 CJK', fontsize=scaled(13), command=subBarHandler, layout='vertical'
+        family=self.UI_FAMILY, fontsize=scaled(13), command=subBarHandler, layout='vertical'
     )
     
     subBar.style.set(bg=('', ''), ol=('', ''))
@@ -320,11 +320,11 @@ finderMask = makeImageMask(size=(WIDTH, finderHEIGHT))
 finderBlur = makeImageBlur(mergeImage(backgroundImage.crop((0, 0, WIDTH, finderHEIGHT)), finderMask))
 finderBar  = maliang.Image(cv, position=(0, 0), size=(WIDTH, finderHEIGHT), image=maliang.PhotoImage(finderBlur))
 Icon = maliang.Image(finderBar, position=(scaled(30), scaled(45 // 1.9)), image=maliang.PhotoImage(iconImage.resize((scaled(30), scaled(30)), 1)), anchor='center')
-Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='桌面', family='源流黑体 CJK', fontsize=scaled(15), weight='bold')
-MenuBar = maliang.SegmentedButton(finderBar, text=['文件', '编辑', '前往', '窗口', '帮助'], position=(Title.position[0] + scaled(30) + scaled(len(Title.get()) * 4), scaled(45 // 2) + scaled(1)), family='源流黑体 CJK', fontsize=scaled(15), anchor='w', command=menubarHandler)
+Title = maliang.Text(finderBar, position=(scaled(65), scaled(45 // 3.75)), text='桌面', family=self.UI_FAMILY, fontsize=scaled(15), weight='bold')
+MenuBar = maliang.SegmentedButton(finderBar, text=['文件', '编辑', '前往', '窗口', '帮助'], position=(Title.position[0] + scaled(30) + scaled(len(Title.get()) * 4), scaled(45 // 2) + scaled(1)), family=self.UI_FAMILY, fontsize=scaled(15), anchor='w', command=menubarHandler)
 MenuBar.style.set(bg=('', ''), ol=('', ''))
 nowTime = datetime.datetime.now()
-Time = maliang.Text(finderBar, position=(WIDTH - scaled(12), finderHEIGHT // 2), text=f'{nowTime.month}/{nowTime.day} {nowTime.strftime(f"%a %H:%M")}', family='源流黑体 CJK', fontsize=scaled(15), weight='bold', anchor='e')
+Time = maliang.Text(finderBar, position=(WIDTH - scaled(12), finderHEIGHT // 2), text=f'{nowTime.month}/{nowTime.day} {nowTime.strftime(f"%a %H:%M")}', family=self.UI_FAMILY, fontsize=scaled(15), weight='bold', anchor='e')
 subBarActivated = -1
 
 for i in MenuBar.children:
@@ -360,8 +360,8 @@ dockApplications['app']['finder'] = maliang.IconButton(dockBar, position=(0 - 1 
 dockApplications['app']['settings'] = maliang.IconButton(dockBar, position=(1 * dockHEIGHT // 2, dockBar.size[1] // 2), size=(dockHEIGHT, dockHEIGHT), anchor='center', image=maliang.PhotoImage(Image.open('icons/settings.png').resize((scaled(55), scaled(55)), 1)), command=lambda: (launchApp('settings')))
 
 maliang.configs.Env.system = 'Windows11'
-dockApplications['tooltip']['finder'] = maliang.Tooltip(dockApplications['app']['finder'], text='文件管理器', align='up', fontsize=scaled(13), family='源流黑体 CJK')
-dockApplications['tooltip']['settings'] = maliang.Tooltip(dockApplications['app']['settings'], text='系统偏好设置', align='up', fontsize=scaled(13), family='源流黑体 CJK')
+dockApplications['tooltip']['finder'] = maliang.Tooltip(dockApplications['app']['finder'], text='文件管理器', align='up', fontsize=scaled(13), family=self.UI_FAMILY)
+dockApplications['tooltip']['settings'] = maliang.Tooltip(dockApplications['app']['settings'], text='系统偏好设置', align='up', fontsize=scaled(13), family=self.UI_FAMILY)
 maliang.configs.Env.system = 'Windows10'
 
 dockBar.style.set(bg=('', ''), ol=('', ''))
