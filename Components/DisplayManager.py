@@ -392,7 +392,7 @@ class Application():
         self.APP_finder_height = self.getScaled(45)
 
         self.WDG_finder = maliang.Image(self.cv, 
-                                        position=(0, 0), 
+                                        position=(0, 0 - self.getScaled(50)), 
                                         image=maliang.PhotoImage(
                                             self.makeImageBlur(                                            
                                                 self.mergeImage(
@@ -417,7 +417,7 @@ class Application():
         self.WDG_finder_time.style.set(fg=('#FFFFFF'))
 
         self.WDG_finder_inputMethod_shape = maliang.Image(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(145), self.getScaled(13)), image=maliang.PhotoImage(self.makeRadiusImage(self.makeMaskImage((self.getScaled(85), self.getScaled(20)), color=(255, 255, 255, 255)), radius=5, alpha=1)))
-        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(11), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(1)), text='AlphaBet', fontsize=self.getScaled(15), family='源流黑体 CJK', weight='bold')
+        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(11), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(2)), text='AlphaBet', fontsize=self.getScaled(15), family='源流黑体 CJK', weight='bold')
         self.WDG_finder_inputMethod_text.style.set(fg=('#000000'))
 
         self.UI_STATUS = 1
@@ -425,7 +425,6 @@ class Application():
 
         # self.testButton = maliang.Button(self.cv, position=(10, 60), size=(50, 50), command=self.setStatus)
 
-        maliang.animation.MoveWidget(self.WDG_finder, offset=(0, 0 - self.getScaled(50)), duration=0, controller=maliang.animation.smooth, fps=self.UI_FPS).start()
         maliang.animation.MoveWidget(self.WDG_finder, offset=(0, self.getScaled(50)), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start(delay=self.UI_ANIMATIME // 2)
 
         self.WDG_loginContainer = maliang.Label(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(200), self.C_SCREENSIZE[1] // 1.75), size=(self.getScaled(400), self.getScaled(400)))
