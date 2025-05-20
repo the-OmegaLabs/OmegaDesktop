@@ -199,18 +199,18 @@ class Application():
             nowTime = datetime.datetime.now()
             n1, n2, sp, n3, n4 = nowTime.strftime('%H:%M')
 
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 1.85 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n1, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 0.8  + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n2, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8  + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n3, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n4, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))    
-            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=sp, family=self.UI_FAMILY, fontsize=self.getScaled(60), weight='bold', anchor='center'))    
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 1.85 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n1, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 0.8  + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n2, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8  + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n3, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=n4, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))    
+            self.WDG_title_time_shadow.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(1), self.C_SCREENSIZE[1] // 3.9 + self.getScaled(1)), text=sp, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(60), weight='bold', anchor='center'))    
             
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 1.85, self.C_SCREENSIZE[1] // 3.9), text=n1, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n2, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n3, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93, self.C_SCREENSIZE[1] // 3.9), text=n4, family=self.UI_FAMILY, fontsize=self.getScaled(65), weight='bold', anchor='center'))    
-            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 3.9), text=sp, family=self.UI_FAMILY, fontsize=self.getScaled(60), weight='bold', anchor='center'))    
-            self.WDG_title_date = maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 5), anchor='center', text=self.getDate(nowTime), family=self.UI_FAMILY, fontsize=self.getScaled(18), weight='bold')
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 1.85, self.C_SCREENSIZE[1] // 3.9), text=n1, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n2, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n3, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93, self.C_SCREENSIZE[1] // 3.9), text=n4, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))    
+            self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 3.9), text=sp, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(60), weight='bold', anchor='center'))    
+            self.WDG_title_date = maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 5), anchor='center', text=self.getDate(nowTime), family=self.UI_FAMILY_TIME, fontsize=self.getScaled(18), weight='bold')
 
             for i, widget in enumerate(self.WDG_title_time_characters):
                 widget.style.set(fg=('#EEEEEE'))
@@ -247,6 +247,7 @@ class Application():
         self.UI_ANIMATIME = args.UI_ANIMATIME
         self.UI_LOCALE    = args.UI_LOCALE
         self.UI_FAMILY    = args.UI_FAMILY
+        self.UI_FAMILY_TIME    = self.UI_FAMILY
 
         if self.IS_DEVMODE:
             self.C_SCREENSIZE = self.UI_WIDTH, self.UI_HEIGHT

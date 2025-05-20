@@ -22,7 +22,7 @@ class Application():
         self.UI_ANIMATIME = 500
         self.UI_FAMILY    = '源流黑体 CJK'
         self.SET_USER     = 'root'
-        self.SET_MUTE     = False    # disable sound playing
+        self.SET_MUTE     = True    # disable sound playing
 
         if self.IS_LOWGPU:
             self.UI_ANIMATIME = 0
