@@ -167,7 +167,6 @@ class Application():
             y2 = int(y1 + self.WDG_passwdbox_size[1])
 
             passwdImg = self.IMG_bg.crop((x1, y1, x2, y2))
-            passwdImg.save('1.png')
 
             self.IMG_passwdMask  = self.makeRadiusImage(self.mergeImage(self.makeImageBlur(passwdImg), self.makeMaskImage(passwdImg.size)), radius=5, alpha=0.9)
             self.IMG_passwdMask_error  = self.makeRadiusImage(self.mergeImage(self.makeImageBlur(passwdImg), self.makeMaskImage(passwdImg.size, color=(96, 0, 0, 96))), radius=5, alpha=0.9)
@@ -210,7 +209,7 @@ class Application():
             self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 0.8,  self.C_SCREENSIZE[1] // 3.9), text=n3, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))
             self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2 + self.getScaled(35) * 1.93, self.C_SCREENSIZE[1] // 3.9), text=n4, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(65), weight='bold', anchor='center'))    
             self.WDG_title_time_characters.append(maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 3.9), text=sp, family=self.UI_FAMILY_TIME, fontsize=self.getScaled(60), weight='bold', anchor='center'))    
-            self.WDG_title_date = maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 5), anchor='center', text=self.getDate(nowTime), family=self.UI_FAMILY_TIME, fontsize=self.getScaled(18), weight='bold')
+            self.WDG_title_date = maliang.Text(self.cv, position=(self.C_SCREENSIZE[0] // 2, self.C_SCREENSIZE[1] // 5), anchor='center', text=self.getDate(nowTime), family=self.UI_FAMILY, fontsize=self.getScaled(18), weight='bold')
 
             for i, widget in enumerate(self.WDG_title_time_characters):
                 widget.style.set(fg=('#EEEEEE'))
@@ -369,7 +368,7 @@ class Application():
                         position=(aboutWindow.size[0] // 2, self.getScaled(200)), anchor='center', 
                         family=self.UI_FAMILY, fontsize=self.getScaled(20), weight='bold')
 
-        maliang.Text(aboutWindow, text='1.0.0', 
+        maliang.Text(aboutWindow, text='2.0.0', 
                         position=(aboutWindow.size[0] // 2, self.getScaled(225)), anchor='center', 
                         family=self.UI_FAMILY, fontsize=self.getScaled(15)).style.set(fg='#999999')
         

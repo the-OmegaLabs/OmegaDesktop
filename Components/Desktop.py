@@ -13,15 +13,71 @@ from lunardate import LunarDate
 import datetime
 from screeninfo import get_monitors
 import maliang.animation
-import pam
-import threading
-import platform
 # from Xlib import display
 # import subprocess
 # import pyatspi
-import time
+
+import Application.minimalcalc as app
+
 
 class Application():
+    def __init__(self, args):
+        Logger.output('Loading display manager...')
+
+        self.status = False
+
+        self.bus          = args 
+        self.IS_DEVMODE   = args.IS_DEVMODE   
+
+        self.UI_SCALE     = args.UI_SCALE     
+        self.UI_FPS       = args.UI_FPS       
+        self.UI_WIDTH     = args.UI_WIDTH     
+        self.UI_HEIGHT    = args.UI_HEIGHT 
+        self.UI_THEME     = args.UI_THEME 
+        self.UI_ANIMATIME = args.UI_ANIMATIME
+        self.UI_LOCALE    = args.UI_LOCALE
+        self.UI_FAMILY    = args.UI_FAMILY
+
+        if self.IS_DEVMODE:
+            self.C_SCREENSIZE = self.UI_WIDTH, self.UI_HEIGHT
+        else:
+            self.C_MONITOR    = get_monitors()[0]
+
+            self.C_SCREENSIZE = self.C_MONITOR.width, self.C_MONITOR.height
+
+        self.SET_USER     = args.SET_USER
+        self.SET_UID      = args.SET_UID
+
+        self.IS_FIRSTSET  = True
+        
+        self.IMG_icon_logo = args.IMG_icon_logo
+        self.IMG_icon_user = args.IMG_icon_user
+        self.IMG_icon_login  = args.IMG_icon_login
+
+        self.IMG_icon_logo   = Image.open(self.IMG_icon_logo)
+        self.IMG_icon_user   = Image.open(self.IMG_icon_user)
+        self.IMG_icon_login  = Image.open(self.IMG_icon_login)
+
+        self.IMG_bg = args.IMG_bg_Desktop
+        self.IMG_original_bg = Image.open(self.IMG_bg)
+        self.APP_FINDER_MENU = []
+        self.APP_SUBBAR_ACTIVE = -1
+
+        self.createWindow()
+        self.loadWidget()
+
+        max_key_len = max(len(key) for key in self.__dict__)  
+        for key, value in self.__dict__.items():
+            Logger.output(f'{key:<{max_key_len}}  {str(value):<30} <type \'{type(value).__name__}\'>', type=Logger.Type.DEBUG)
+
+        if not self.IS_DEVMODE:
+            self.root.fullscreen()
+        else:
+            self.root.geometry(size=(self.UI_WIDTH, self.UI_HEIGHT))
+
+        self.root.mainloop()
+
+
     def getScaled(self, number) -> int:
         return int(number * self.UI_SCALE)
 
@@ -96,57 +152,6 @@ class Application():
         else:
             return now.strftime('%A, %B %d')
 
-    def __init__(self, args):
-        Logger.output('Loading display manager...')
-
-        self.status = False
-
-        self.bus          = args 
-        self.IS_DEVMODE   = args.IS_DEVMODE   
-
-        self.UI_SCALE     = args.UI_SCALE     
-        self.UI_FPS       = args.UI_FPS       
-        self.UI_WIDTH     = args.UI_WIDTH     
-        self.UI_HEIGHT    = args.UI_HEIGHT 
-        self.UI_THEME     = args.UI_THEME 
-        self.UI_ANIMATIME = args.UI_ANIMATIME
-        self.UI_LOCALE    = args.UI_LOCALE
-        self.UI_FAMILY    = args.UI_FAMILY
-
-        if self.IS_DEVMODE:
-            self.C_SCREENSIZE = self.UI_WIDTH, self.UI_HEIGHT
-        else:
-            self.C_MONITOR    = get_monitors()[0]
-
-            self.C_SCREENSIZE = self.C_MONITOR.width, self.C_MONITOR.height
-
-        self.SET_USER     = args.SET_USER
-
-        self.IS_FIRSTSET  = True
-        
-        self.IMG_icon_logo = args.IMG_icon_logo
-        self.IMG_icon_user = args.IMG_icon_user
-        self.IMG_icon_login  = args.IMG_icon_login
-
-        self.IMG_icon_logo   = Image.open(self.IMG_icon_logo)
-        self.IMG_icon_user   = Image.open(self.IMG_icon_user)
-        self.IMG_icon_login  = Image.open(self.IMG_icon_login)
-
-        self.IMG_bg = args.IMG_bg_Desktop
-        self.IMG_original_bg = Image.open(self.IMG_bg)
-        self.APP_FINDER_MENU = []
-        self.APP_SUBBAR_ACTIVE = -1
-
-
-        self.createWindow()
-        self.loadWidget()
-
-        max_key_len = max(len(key) for key in self.__dict__)  
-        for key, value in self.__dict__.items():
-            Logger.output(f'{key:<{max_key_len}}  {str(value):<30} <type \'{type(value).__name__}\'>', type=Logger.Type.DEBUG)
-
-        self.root.mainloop()
-
     # def getActiveApplicationMenu(self):
     #     def find_menubar(obj):
     #         if obj.getRoleName() == "menu bar":
@@ -219,11 +224,6 @@ class Application():
 
 
         maliang.theme.manager.set_color_mode(self.UI_THEME)
-        
-        if not self.IS_DEVMODE:
-            self.root.fullscreen()
-        else:
-            self.root.geometry(size=(self.UI_WIDTH, self.UI_HEIGHT))
 
         self.root.maxsize(self.C_SCREENSIZE[0], self.C_SCREENSIZE[1])
         self.root.minsize(self.C_SCREENSIZE[0], self.C_SCREENSIZE[1])
@@ -243,8 +243,8 @@ class Application():
             adjustResolution()
 
         def keyPress(event):
-            print(event.keysym)
-            self.bus.playsound('./Resources/sound/tink.mp3')
+            if event.keycode in (174, 175): # change volume
+                self.bus.playsound('./Resources/sound/tink.mp3')
 
         def keyRelease(event):
             pass
@@ -255,8 +255,13 @@ class Application():
 
     def MenuHandler(self, i):
         def subBarHandler(i):
-            if self.APP_SUBBAR_ACTIVE == 0 and i == 6: # leave usernaem session
-                self.root.destroy()
+            if self.APP_SUBBAR_ACTIVE == 0:
+                if i == 4:
+                    self.bus.reboot()
+                if i == 5: # shutdown
+                    self.bus.shutdown()
+                if i == 6: # leave username session
+                    self.root.destroy()
 
             self.WDG_SubBar.destroy()
             self.WDG_SubBar_bg.destroy()
@@ -275,52 +280,53 @@ class Application():
         menu = []
         if i == 0:
             menu = [
-                '关于本机',
-                '系统设置...',
-                'Plusto 应用商店...',
-                '打开进程监视器...',
-                '重新启动...',
-                '关机...',
-                f'结束会话 \"{self.SET_USER}\"...              '
+                'About This Device',
+                'System Settings...',
+                'Plusto App Store...',
+                'Task Manager...',
+                'Restart...',
+                'Shutdown...',
+                f'Log Out \"{self.SET_USER}\"...              '
             ]
 
         if i == 1:
             menu = [
-                '撤销',
-                '重做',
-                '剪切',
-                '复制',
-                '粘贴',
-                '剪贴板工具...      '
+                'Undo',
+                'Redo',
+                'Cut',
+                'Copy',
+                'Paste',
+                'Clipboard Utility...      '
             ]
 
         if i == 2:
             menu = [
-                '文稿',
-                '下载',
-                '桌面',
-                '网络',
-                f'{self.SET_USER} 的个人文件夹     ',
+                'Documents',
+                'Downloads',
+                'Desktop',
+                'Network',
+                f'{self.SET_USER}’s Home Folder     ',
             ]
 
         if i == 3:
             menu = [
-                '最小化当前窗口   ',
-                '合并所有窗口',
-                '前置全部窗口',
-                '隐藏全部窗口'
+                'Minimize Current Window   ',
+                'Merge All Windows',
+                'Bring All Windows to Front',
+                'Hide All Windows'
             ]
 
         if i == 4:
             menu = [
-                '了解 OmegaOS 2.0 Fuji 的新功能...',
-                '欢迎使用 OmegaOS...',
-                '搜索帮助主题...',
-                'Omega Desktop 帮助',
-                '反馈问题或建议...',
-                '检查更新...',
-                '关于此 OmegaOS'
+                'What\'s New in Omega Linux 2.0 "Fuji"...',
+                'Welcome to Omega Linux...',
+                'Search Help Topics...',
+                'Omega Desktop Help',
+                'Feedback or Suggestions...',
+                'Check for Updates...',
+                'About This Omega Linux'
             ]
+
 
 
         subBarPosition = (self.WDG_finder_MenuBar.children[i].position[0] + self.getScaled(2), self.APP_finder_height)
@@ -432,7 +438,7 @@ class Application():
 
         self.WDG_finder_MenuBar = maliang.SegmentedButton(
             self.WDG_finder,
-            text=['文件', '编辑', '前往', '窗口', '帮助'],
+            text=['File', 'Edit', 'Go', 'Window', 'Help'],
             position=(
                 self.WDG_finder_title.position[0] +
                 self.getScaled(15) +
@@ -460,6 +466,7 @@ class Application():
         # self.testButton = maliang.Button(self.cv, position=(10, 60), size=(50, 50), command=self.setStatus)
 
         maliang.animation.MoveWidget(self.WDG_finder, offset=(0, self.getScaled(50)), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start(delay=self.UI_ANIMATIME // 2)
+
 
 
         # def autoUpdateMenubar():

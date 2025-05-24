@@ -11,7 +11,7 @@ class Application():
     def __init__(self):
         Logger.output('Loading Omega Desktop...')
 
-        self.IS_DEVMODE   = True    # fullscreen
+        self.IS_DEVMODE   = False    # fullscreen
         self.IS_LOWGPU    = False   # disable animation
         self.UI_SCALE     = 1.3   # scale of UI
         self.UI_FPS       = 200     # animation fps
@@ -22,14 +22,15 @@ class Application():
         self.UI_ANIMATIME = 500
         self.UI_FAMILY    = '源流黑体 CJK'
         self.SET_USER     = 'root'
-        self.SET_MUTE     = True    # disable sound playing
+        self.SET_UID      = 1000
+        self.SET_MUTE     = False    # disable sound playing
 
         if self.IS_LOWGPU:
             self.UI_ANIMATIME = 0
 
         # background paths
-        self.IMG_bg_DisplayManager = './Resources/bg/7.jpg' 
-        self.IMG_bg_Desktop        = './Resources/bg/7.jpg' 
+        self.IMG_bg_DisplayManager = './Resources/bg/Fuji.webp' 
+        self.IMG_bg_Desktop        = './Resources/bg/Fuji.webp' 
 
         self.IMG_icon_logo         = './Resources/icons/main.png' 
         self.IMG_icon_user         = './Resources/icons/user.png'
@@ -43,8 +44,8 @@ class Application():
             Logger.output(f'DisplayManager Status: {self.RET_display_manager}')
             
             if self.RET_display_manager:
-                self.playsound('Resources/sound/desktop-login.wav')
                 Components.Desktop.Application(self)    
+
 
             max_key_len = max(len(key) for key in self.__dict__)  
             for key, value in self.__dict__.items():

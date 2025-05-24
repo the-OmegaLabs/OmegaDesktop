@@ -103,6 +103,7 @@ class Application():
         self.UI_THEME     = args.UI_THEME 
         self.UI_ANIMATIME = args.UI_ANIMATIME
         self.UI_LOCALE    = args.UI_LOCALE
+        self.UI_FAMILY    = args.UI_FAMILY
 
         self.SET_USER     = args.SET_USER
 
