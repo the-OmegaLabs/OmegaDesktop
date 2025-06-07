@@ -17,8 +17,6 @@ import maliang.animation
 # import subprocess
 # import pyatspi
 
-import Application.minimalcalc as app
-
 
 class Application():
     def __init__(self, args):
@@ -318,13 +316,13 @@ class Application():
 
         if i == 4:
             menu = [
-                'What\'s New in Omega Linux 2.0 "Fuji"...',
-                'Welcome to Omega Linux...',
+                'What\'s New in OmegaOS 2.0 "Fuji"...',
+                'Welcome to OmegaOS...',
                 'Search Help Topics...',
                 'Omega Desktop Help',
                 'Feedback or Suggestions...',
                 'Check for Updates...',
-                'About This Omega Linux'
+                'About This OmegaOS'
             ]
 
 
@@ -466,8 +464,6 @@ class Application():
         # self.testButton = maliang.Button(self.cv, position=(10, 60), size=(50, 50), command=self.setStatus)
 
         maliang.animation.MoveWidget(self.WDG_finder, offset=(0, self.getScaled(50)), duration=self.UI_ANIMATIME, controller=maliang.animation.ease_out, fps=self.UI_FPS).start(delay=self.UI_ANIMATIME // 2)
-
-
 
         # def autoUpdateMenubar():
         #     try:

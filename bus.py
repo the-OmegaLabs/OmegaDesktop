@@ -1,17 +1,17 @@
 import os
 import platform
 import sys
-import threading
 import Components.Desktop
-import Frameworks.Logger as Logger
 import Components.DisplayManager
-import playsound
+
+import Frameworks.Device as Device
+import Frameworks.Logger as Logger
 
 class Application():
     def __init__(self):
         Logger.output('Loading Omega Desktop...')
 
-        self.IS_DEVMODE   = False    # fullscreen
+        self.IS_DEVMODE   = True    # fullscreen
         self.IS_LOWGPU    = False   # disable animation
         self.UI_SCALE     = 1.3   # scale of UI
         self.UI_FPS       = 200     # animation fps
@@ -55,8 +55,7 @@ class Application():
                 break
 
     def playsound(self, path):
-        if not self.SET_MUTE:
-            threading.Thread(target=playsound.playsound, args=[path], daemon=True).start()
+        Device.SoundSystem.playSound(path)
 
     def shutdown(self):
         Logger.output('Shutting down...')

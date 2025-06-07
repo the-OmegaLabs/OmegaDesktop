@@ -1,0 +1,7 @@
+colorama
+maliang[opt]
+six
+wheel
+setuptools
+playsound==1.2.2
+pillow
