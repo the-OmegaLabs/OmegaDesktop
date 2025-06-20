@@ -1,7 +1,9 @@
 import platform
 import subprocess
 import threading
-
+import psutil
+import cpuinfo
+import socket
 import playsound
 
 class SoundSystem:
@@ -34,3 +36,5 @@ class SoundSystem:
             
     def playSound(path: str):
         threading.Thread(target=playsound.playsound, args=[path], daemon=True).start()
+        
+

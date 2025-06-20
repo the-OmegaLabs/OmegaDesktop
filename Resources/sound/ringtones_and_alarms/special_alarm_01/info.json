@@ -1,0 +1,18 @@
+{
+  "ring_package_name": "猫と真夏と心への道",
+  "creator_name": "Shiroi",
+  "ringing times": {
+    "1": {
+      "sound_file": "general.wav"
+    },
+    "2": {
+      "sound_file": "2ndtime.wav"
+    },
+    "3": {
+      "sound_file": "3rdtime.wav"
+    },
+    "4": {
+      "sound_file": "ending.wav"
+    }
+  }
+}

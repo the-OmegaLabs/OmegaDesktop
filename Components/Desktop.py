@@ -37,11 +37,11 @@ class Application():
         self.UI_FAMILY    = args.UI_FAMILY
 
         if self.IS_DEVMODE:
-            self.C_SCREENSIZE = self.UI_WIDTH, self.UI_HEIGHT
+            (self.UI_WIDTH, self.UI_HEIGHT) = self.UI_WIDTH, self.UI_HEIGHT
         else:
             self.C_MONITOR    = get_monitors()[0]
 
-            self.C_SCREENSIZE = self.C_MONITOR.width, self.C_MONITOR.height
+            (self.UI_WIDTH, self.UI_HEIGHT) = self.C_MONITOR.width, self.C_MONITOR.height
 
         self.SET_USER     = args.SET_USER
         self.SET_UID      = args.SET_UID
@@ -209,10 +209,10 @@ class Application():
         
         def adjustResolution():
             self.C_MONITOR = get_monitors()[0]
-            if self.C_SCREENSIZE != (self.C_MONITOR.width, self.C_MONITOR.height):
-                Logger.output(f"Resolution changed: {self.C_SCREENSIZE} -> {self.C_MONITOR.width, self.C_MONITOR.height}")
-                self.C_SCREENSIZE = (self.C_MONITOR.width, self.C_MONITOR.height)
-                self.root.geometry(size=self.C_SCREENSIZE)
+            if (self.UI_WIDTH, self.UI_HEIGHT) != (self.C_MONITOR.width, self.C_MONITOR.height):
+                Logger.output(f"Resolution changed: {(self.UI_WIDTH, self.UI_HEIGHT)} -> {self.C_MONITOR.width, self.C_MONITOR.height}")
+                (self.UI_WIDTH, self.UI_HEIGHT) = (self.C_MONITOR.width, self.C_MONITOR.height)
+                self.root.geometry(size=(self.UI_WIDTH, self.UI_HEIGHT))
                 self.cv.destroy()
                 self.cv = maliang.Canvas(self.root, auto_zoom=False)
                 self.cv.place(width=self.root.size[0], height=self.root.size[1])
@@ -223,8 +223,8 @@ class Application():
 
         maliang.theme.manager.set_color_mode(self.UI_THEME)
 
-        self.root.maxsize(self.C_SCREENSIZE[0], self.C_SCREENSIZE[1])
-        self.root.minsize(self.C_SCREENSIZE[0], self.C_SCREENSIZE[1])
+        self.root.maxsize((self.UI_WIDTH, self.UI_HEIGHT)[0], (self.UI_WIDTH, self.UI_HEIGHT)[1])
+        self.root.minsize((self.UI_WIDTH, self.UI_HEIGHT)[0], (self.UI_WIDTH, self.UI_HEIGHT)[1])
 
         self.root.icon(maliang.PhotoImage(Image.new('RGBA', size=(1, 1))))
         self.root.title('OmegaOS Desktop Environment')
@@ -330,22 +330,17 @@ class Application():
         subBarPosition = (self.WDG_finder_MenuBar.children[i].position[0] + self.getScaled(2), self.APP_finder_height)
 
         self.WDG_SubBar = maliang.SegmentedButton(
-            self.WDG_finder, text=menu, position=subBarPosition,
-            family=self.UI_FAMILY, fontsize=self.getScaled(13), layout='vertical'
+            self.cv, text=menu, position=subBarPosition,
+            family=self.UI_FAMILY, fontsize=self.getScaled(13), command=subBarHandler, layout='vertical'
         )
 
         subBarSize = self.WDG_SubBar.size
-        self.WDG_SubBar.destroy()
 
         subBarBlur = self.makeImageBlur(self.IMG_bg.crop((subBarPosition[0], subBarPosition[1], subBarPosition[0] + subBarSize[0], subBarPosition[1] + subBarSize[1])))
         subBarMask = self.makeRadiusImage(self.mergeImage(subBarBlur, self.makeMaskImage(subBarSize)), alpha=1, radius=5)
         self.WDG_SubBar_bg = maliang.Image(self.cv, position=subBarPosition, size=subBarSize, image=maliang.PhotoImage(subBarMask))
 
-
-        self.WDG_SubBar = maliang.SegmentedButton(
-            self.cv, text=menu, position=subBarPosition,
-            family=self.UI_FAMILY, fontsize=self.getScaled(13), command=subBarHandler, layout='vertical'
-        )
+        self.WDG_SubBar.lift()
 
         self.WDG_SubBar.style.set(bg=('', ''), ol=('', ''))
         for i in self.WDG_SubBar.children:
@@ -390,7 +385,7 @@ class Application():
             widget.bind('<B1-Motion>', on_drag)
             widget.bind('<ButtonRelease-1>', on_release)
 
-        aboutWindow = maliang.Label(self.cv, size=(self.getScaled(270), self.getScaled(400)), position=(self.C_SCREENSIZE[0] // 2 - self.getScaled(150), self.C_SCREENSIZE[1] // 2 - self.getScaled(200)))
+        aboutWindow = maliang.Label(self.cv, size=(self.getScaled(270), self.getScaled(400)), position=((self.UI_WIDTH, self.UI_HEIGHT)[0] // 2 - self.getScaled(150), (self.UI_WIDTH, self.UI_HEIGHT)[1] // 2 - self.getScaled(200)))
 
         maliang.Image(aboutWindow, position=(self.getScaled(134), self.getScaled(30)), anchor='n', image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(150), self.getScaled(150)), 1)))
 
@@ -415,20 +410,20 @@ class Application():
         enable_drag(aboutWindow)
 
     def loadWidget(self):        
-        self.IMG_bg = self.getProportionalImage(img=self.IMG_original_bg, size=self.C_SCREENSIZE)
+        self.IMG_bg = self.getProportionalImage(img=self.IMG_original_bg, size=(self.UI_WIDTH, self.UI_HEIGHT))
         self.IMG_bg_blured1 = self.makeImageBlur(img=self.IMG_bg, radius=5)
         self.IMG_bg_blured2 = self.makeImageBlur(img=self.IMG_bg, radius=10)
-        self.WDG_background = maliang.Image(self.cv, position=(0, 0), size=self.C_SCREENSIZE, image=maliang.PhotoImage(self.IMG_bg))
+        self.WDG_background = maliang.Image(self.cv, position=(0, 0), size=(self.UI_WIDTH, self.UI_HEIGHT), image=maliang.PhotoImage(self.IMG_bg))
         
         self.APP_finder_height = self.getScaled(45)
         
-        # self.WDG_finderWin = maliang.Toplevel(self.root, size=(self.C_SCREENSIZE[0], self.APP_finder_height), position=(self.root.winfo_x(), self.root.winfo_y()))
+        # self.WDG_finderWin = maliang.Toplevel(self.root, size=((self.UI_WIDTH, self.UI_HEIGHT)[0], self.APP_finder_height), position=(self.root.winfo_x(), self.root.winfo_y()))
         # self.WDG_finderWin.topmost(True)
 
         # self.WDG_finder = maliang.Canvas(self.WDG_finderWin)
         # self.WDG_finder.place(x=0, y=0, width=self.IMG_bg.size[0], height=self.IMG_bg.size[1])
 
-        self.WDG_finder = maliang.Image(self.cv, position=(0, 0 - self.getScaled(50)), image=maliang.PhotoImage(self.makeImageBlur(self.mergeImage(self.IMG_bg.crop((0, 0, self.C_SCREENSIZE[0], self.APP_finder_height)), self.makeMaskImage(size=(self.C_SCREENSIZE[0], self.APP_finder_height))))))
+        self.WDG_finder = maliang.Image(self.cv, position=(0, 0 - self.getScaled(50)), image=maliang.PhotoImage(self.makeImageBlur(self.mergeImage(self.IMG_bg.crop((0, 0, (self.UI_WIDTH, self.UI_HEIGHT)[0], self.APP_finder_height)), self.makeMaskImage(size=((self.UI_WIDTH, self.UI_HEIGHT)[0], self.APP_finder_height))))))
 
         self.WDG_finder_icon = maliang.Image(self.WDG_finder, position=(self.getScaled(30), self.APP_finder_height // 1.9), image=maliang.PhotoImage(self.IMG_icon_logo.resize((self.getScaled(30), self.getScaled(30)), 1)), anchor='center')
         self.WDG_finder_title = maliang.Text(self.WDG_finder, position=(self.getScaled(65), self.APP_finder_height // 3.75), text=self.SET_USER, family=self.UI_FAMILY, fontsize=self.getScaled(15), weight='bold')
@@ -439,10 +434,10 @@ class Application():
             text=['File', 'Edit', 'Go', 'Window', 'Help'],
             position=(
                 self.WDG_finder_title.position[0] +
-                self.getScaled(15) +
-                self.getScaled(len(self.WDG_finder_title.get()) * 4) +
-                self.getScaled(1),
-                self.APP_finder_height // 2
+                self.WDG_finder_title.size[0] +
+                self.getScaled(5),
+                self.APP_finder_height // 2 +
+                self.getScaled(2)
             ),
             family=self.UI_FAMILY,
             fontsize=self.getScaled(15),
@@ -454,11 +449,11 @@ class Application():
         for i in self.WDG_finder_MenuBar.children:
             i.style.set(fg=('#CCCCCC', '#DDDDDD', '#FFFFFF', '#CCCCCC', '#FFFFFF', '#FFFFFF'), bg=('', '', '', '', '', ''), ol=('', '', '', '', '', ''))
 
-        self.WDG_finder_time = maliang.Text(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(50), self.getScaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family=self.UI_FAMILY, fontsize=self.getScaled(15), weight='bold')
+        self.WDG_finder_time = maliang.Text(self.WDG_finder, position=((self.UI_WIDTH, self.UI_HEIGHT)[0] - self.getScaled(50), self.getScaled(12)), text=datetime.datetime.now().strftime("%H:%M"), family=self.UI_FAMILY, fontsize=self.getScaled(15), weight='bold')
         self.WDG_finder_time.style.set(fg=('#FFFFFF'))
 
-        self.WDG_finder_inputMethod_shape = maliang.Image(self.WDG_finder, position=(self.C_SCREENSIZE[0] - self.getScaled(145), self.getScaled(13)), image=maliang.PhotoImage(self.makeRadiusImage(self.makeMaskImage((self.getScaled(85), self.getScaled(20)), color=(255, 255, 255, 255)), radius=5, alpha=1)))
-        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, position=(self.WDG_finder_inputMethod_shape.size[0] // 2 + self.getScaled(11), self.WDG_finder_inputMethod_shape.size[1] // 2 - self.getScaled(2)), text='AlphaBet', fontsize=self.getScaled(15), family=self.UI_FAMILY, weight='bold')
+        self.WDG_finder_inputMethod_shape = maliang.Image(self.WDG_finder, position=((self.UI_WIDTH, self.UI_HEIGHT)[0] - self.getScaled(145), self.getScaled(13)), image=maliang.PhotoImage(self.makeRadiusImage(self.makeMaskImage((self.getScaled(85), self.getScaled(20)), color=(255, 255, 255, 255)), radius=5, alpha=1)))
+        self.WDG_finder_inputMethod_text = maliang.Text(self.WDG_finder_inputMethod_shape, anchor='center', position=(self.WDG_finder_inputMethod_shape.size[0] // 2, self.WDG_finder_inputMethod_shape.size[1] // 2), text='AlphaBet', fontsize=self.getScaled(15), family=self.UI_FAMILY, weight='bold')
         self.WDG_finder_inputMethod_text.style.set(fg=('#000000'))
 
         # self.testButton = maliang.Button(self.cv, position=(10, 60), size=(50, 50), command=self.setStatus)
